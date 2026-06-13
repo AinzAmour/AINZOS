@@ -8,6 +8,7 @@
 #include <esp_sleep.h>
 #include "mainwindow.h"
 #include "nav_stack.h"
+#include "robot_eyes.h"
 
 ClockSaverEntryMode currentClockSaverMode = CS_ENTRY_MANUAL;
 
@@ -89,65 +90,6 @@ void exitClockSaverToMainMenu() {
   window.markClockSaverExited();
 }
 
-static void drawRobotEyes(DisplayWrapper* display, SettingsManager* settings, RobotMood mood, uint32_t now) {
-  auto d = display->getDriver();
-  display->clear();
-  
-  int leftX = 24, rightX = 76;
-  int ey = 18, ew = 28, eh = 24;
-  int radius = 6;
-  
-  switch(mood) {
-    case MOOD_IDLE:
-      d->fillRoundRect(leftX, ey, ew, eh, radius, SSD1306_WHITE);
-      d->fillRoundRect(rightX, ey, ew, eh, radius, SSD1306_WHITE);
-      break;
-    case MOOD_BLINK:
-      d->fillRoundRect(leftX, 29, ew, 4, 2, SSD1306_WHITE);
-      d->fillRoundRect(rightX, 29, ew, 4, 2, SSD1306_WHITE);
-      break;
-    case MOOD_LOOK_LEFT:
-      d->fillRoundRect(leftX - 4, ey, ew, eh, radius, SSD1306_WHITE);
-      d->fillRoundRect(rightX - 4, ey, ew, eh, radius, SSD1306_WHITE);
-      break;
-    case MOOD_LOOK_RIGHT:
-      d->fillRoundRect(leftX + 4, ey, ew, eh, radius, SSD1306_WHITE);
-      d->fillRoundRect(rightX + 4, ey, ew, eh, radius, SSD1306_WHITE);
-      break;
-    case MOOD_SLEEPY:
-      d->fillRoundRect(leftX, 24, ew, 12, 2, SSD1306_WHITE);
-      d->fillRoundRect(rightX, 24, ew, 12, 2, SSD1306_WHITE);
-      break;
-    case MOOD_SURPRISED:
-      d->fillCircle(leftX + 14, ey + 12, 12, SSD1306_WHITE);
-      d->fillCircle(rightX + 14, ey + 12, 12, SSD1306_WHITE);
-      break;
-    case MOOD_HAPPY:
-      d->fillRoundRect(leftX, ey, ew, eh, radius, SSD1306_WHITE);
-      d->fillRoundRect(rightX, ey, ew, eh, radius, SSD1306_WHITE);
-      d->fillRoundRect(leftX-2, ey+16, ew+4, 12, 0, SSD1306_BLACK); // Cutout bottom
-      break;
-  }
-  
-  // Overlay small time
-  struct tm timeinfo;
-  if (getLocalTime(&timeinfo, 0)) {
-    char timeStr[10];
-    int h = timeinfo.tm_hour;
-    if (!settings->cs.use24h) {
-      h = h % 12;
-      if (h == 0) h = 12;
-    }
-    snprintf(timeStr, sizeof(timeStr), "%02d:%02d", h, timeinfo.tm_min);
-    d->setTextSize(1);
-    d->setTextColor(SSD1306_WHITE);
-    d->setCursor(48, 54);
-    d->print(timeStr);
-  }
-  
-  d->display();
-}
-
 void handleClockSaverApp(DisplayWrapper* display, SettingsManager* settings, ButtonEvent btn) {
   uint32_t now = millis();
   
@@ -176,6 +118,7 @@ void handleClockSaverApp(DisplayWrapper* display, SettingsManager* settings, But
       csState = CS_SHOW_ANIMATION;
       modeSwitchTime = now;
       animStartMs = now;
+      initRobotEyes();
     }
   }
 
@@ -312,6 +255,7 @@ void handleClockSaverApp(DisplayWrapper* display, SettingsManager* settings, But
         csState = CS_SHOW_ANIMATION;
         modeSwitchTime = now;
         animStartMs = now;
+        initRobotEyes();
         break;
       }
 
@@ -420,7 +364,7 @@ void handleClockSaverApp(DisplayWrapper* display, SettingsManager* settings, But
         lastMoodChangeMs = now;
       }
       
-      drawRobotEyes(display, settings, currentMood, now);
+      updateRobotEyes(display, settings, currentMood, now);
       break;
     }
 
