@@ -368,8 +368,8 @@ void updateRobotEyes(DisplayWrapper* display, SettingsManager* settings, RobotMo
   }
 
   if (offset >= 0) {
-    d->fillTriangle(x_left - 1, y_left + offset, x_left + left_eye.width + 1, y_left + 5 + offset, x_left - 1, y_left + left_eye.height + offset, SSD1306_BLACK);
-    d->fillTriangle(x_right + right_eye.width + 1, y_right + offset, x_right - 2, y_right + 5 + offset, x_right + right_eye.width + 1, y_right + right_eye.height + offset, SSD1306_BLACK);
+    d->fillTriangle(x_left - 1, left_eye.y + offset, x_left + left_eye.width + 1, left_eye.y + 5 + offset, x_left - 1, left_eye.y + left_eye.height + offset, SSD1306_BLACK);
+    d->fillTriangle(x_right + right_eye.width + 1, right_eye.y + offset, x_right - 2, right_eye.y + 5 + offset, x_right + right_eye.width + 1, right_eye.y + right_eye.height + offset, SSD1306_BLACK);
   }
 
   // Overlay small time
