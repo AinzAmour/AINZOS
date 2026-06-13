@@ -41,6 +41,14 @@ void initRobotEyes() {
 
 // Map the target Mood to an animation transition if we are idle
 static void handleMoodTransitions(RobotMood targetMood) {
+  // If we are currently holding a mood, and the target mood has changed, return to center
+  if ((animState == ANIM_HAPPY_HOLD && targetMood != MOOD_HAPPY) ||
+      (animState == ANIM_SLEEPING_HOLD && targetMood != MOOD_SLEEPY) ||
+      (animState == ANIM_SURPRISE_HOLD && targetMood != MOOD_SURPRISED)) {
+    animState = ANIM_RETURN_TO_CENTER;
+    animProgress = 0;
+  }
+
   if (animState != ANIM_IDLE) return; // Wait for current animation to finish
 
   switch(targetMood) {
