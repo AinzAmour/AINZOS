@@ -139,7 +139,14 @@ void handleClockSaverApp(DisplayWrapper* display, SettingsManager* settings, But
             csState = CS_SHOW_CLOCK;
             clockStartMs = now;
           } else {
-            csState = CS_WIFI_CONNECT;
+            struct tm timeinfo;
+            if (getLocalTime(&timeinfo, 0) && timeinfo.tm_year > 100) {
+              Serial.println("[ClockSaver] Time already synced, skipping WiFi");
+              csState = CS_SHOW_CLOCK;
+              clockStartMs = now;
+            } else {
+              csState = CS_WIFI_CONNECT;
+            }
           }
         } else {
           csState = CS_SHOW_CLOCK;
