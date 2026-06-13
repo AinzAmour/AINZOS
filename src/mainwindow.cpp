@@ -264,7 +264,7 @@ void MainWindow::changePage(Page newPage) {
   } else if (currentPage == Page::About) {
     const char* lines[] = {
       "AINZOS",
-      HIZMOS_VERSION,
+      AINZOS_VERSION,
       "ESP32-C3 SuperMini",
       "Lab Testing Only",
       "Author: AinZ"
@@ -282,41 +282,82 @@ void MainWindow::changePage(Page newPage) {
 }
 
 void MainWindow::handleBoot(ButtonEvent btn) {
-  if (millis() - stateStartTime < 10) {
-    display.clear();
-    auto d = display.getDriver();
-    
-    d->drawRect(0, 0, 128, 64, SSD1306_WHITE);
-    
-    d->setTextSize(1);
-    d->setTextColor(SSD1306_WHITE);
-    d->setCursor(35, 6);
-    d->print(F("A I N Z O S"));
-    d->drawFastHLine(6, 16, 116, SSD1306_WHITE);
-    
-    d->setCursor(8, 22);
+  uint32_t elapsed = millis() - stateStartTime;
+  
+  display.clear();
+  auto d = display.getDriver();
+  
+  // Outer frame
+  d->drawRect(0, 0, 128, 64, SSD1306_WHITE);
+  
+  // Header
+  d->setTextSize(1);
+  d->setTextColor(SSD1306_WHITE);
+  d->setCursor(35, 6);
+  d->print(F("A I N Z O S"));
+  d->drawFastHLine(6, 16, 116, SSD1306_WHITE);
+  
+  // Terminal typing simulation
+  if (elapsed >= 0) {
+    d->setCursor(8, 20);
     d->print(F("Version: "));
-    d->print(F(HIZMOS_VERSION));
-    
+    d->print(F(AINZOS_VERSION));
+  }
+  
+  if (elapsed >= 400) {
     uint8_t wifiMac[6];
     esp_read_mac(wifiMac, ESP_MAC_WIFI_STA);
     char macStr[20];
     snprintf(macStr, sizeof(macStr), "MAC:%02X:%02X:%02X..", wifiMac[0], wifiMac[1], wifiMac[2]);
-    d->setCursor(8, 32);
+    d->setCursor(8, 30);
     d->print(macStr);
-
-    d->setCursor(8, 42);
-    d->print(F("Flash: 4MB"));
-
-    d->setCursor(8, 52);
-    d->print(F("Booting..."));
-    d->setCursor(100, 52);
-    d->print(F("[OK]"));
-
-    d->display();
   }
   
-  if (millis() - stateStartTime > 1500 || btn != BTN_NONE) {
+  if (elapsed >= 800) {
+    d->setCursor(8, 40);
+    d->print(F("Flash: 4MB"));
+  }
+  
+  if (elapsed >= 1200) {
+    d->setCursor(8, 50);
+    d->print(F("Booting..."));
+  }
+  
+  // Progress Bar
+  d->drawRect(72, 51, 48, 7, SSD1306_WHITE);
+  float pct = (float)elapsed / 2000.0f;
+  if (pct > 1.0f) pct = 1.0f;
+  int w = (int)(pct * 44.0f);
+  if (w > 0) {
+    d->fillRect(74, 53, w, 3, SSD1306_WHITE);
+  }
+  
+  if (elapsed >= 2000) {
+    // Show [OK] overlay or print at end
+    d->fillRect(72, 51, 48, 7, SSD1306_BLACK); // Clear progress bar area
+    d->setCursor(84, 50);
+    d->print(F("[OK]"));
+  }
+  
+  // Cursor blinking on active printing line
+  int cursorY = 20;
+  if (elapsed >= 1200) cursorY = 50;
+  else if (elapsed >= 800) cursorY = 40;
+  else if (elapsed >= 400) cursorY = 30;
+  
+  int cursorX = 8 + 15 * 6; // Version line length (roughly)
+  if (cursorY == 30) cursorX = 8 + 14 * 6;
+  if (cursorY == 40) cursorX = 8 + 10 * 6;
+  if (cursorY == 50) cursorX = 8 + 10 * 6;
+  
+  // Draw blinking block cursor (only if boot not done)
+  if (elapsed < 2000 && (elapsed / 250) % 2 == 0) {
+    d->fillRect(cursorX, cursorY, 5, 7, SSD1306_WHITE);
+  }
+  
+  d->display();
+  
+  if (elapsed > 2400 || btn != BTN_NONE) {
     changePage(Page::Main);
   }
 }

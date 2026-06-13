@@ -124,15 +124,52 @@ void handleClockSaverApp(DisplayWrapper* display, SettingsManager* settings, But
 
   switch (csState) {
     case CS_BOOT_ANIM: {
+      uint32_t elapsed = now - stateTimer;
       display->clear();
       auto d = display->getDriver();
+      
+      // Calculate smooth slide-in for AINZOS text
+      int textY = 20;
+      if (elapsed < 800) {
+        float t = (float)elapsed / 800.0f;
+        float ease = t * (2.0f - t); // Ease out
+        textY = 50 - (int)(ease * 30.0f);
+      }
+      
       d->setTextSize(2);
       d->setTextColor(SSD1306_WHITE);
-      d->setCursor(25, 24);
-      d->print(F("HIZMOS"));
+      d->setCursor(28, textY);
+      d->print(F("AINZOS"));
+
+      // Draw horizontal line growing from center
+      if (elapsed >= 800) {
+        int lineWidth = 0;
+        if (elapsed < 1400) {
+          float t = (float)(elapsed - 800) / 600.0f;
+          float ease = t * (2.0f - t);
+          lineWidth = (int)(ease * 80.0f);
+        } else {
+          lineWidth = 80;
+        }
+        int startX = 64 - lineWidth / 2;
+        d->drawFastHLine(startX, 40, lineWidth, SSD1306_WHITE);
+      }
+
+      // Draw subtext
+      if (elapsed >= 1400) {
+        d->setTextSize(1);
+        d->setCursor(25, 48);
+        d->print(F("SYSTEM ACTIVE"));
+        
+        // Add a small blinking cursor
+        if ((elapsed / 250) % 2 == 0) {
+          d->fillRect(105, 48, 4, 7, SSD1306_WHITE);
+        }
+      }
+
       d->display();
 
-      if (now - stateTimer >= 1500) {
+      if (elapsed >= 2200) {
         if (settings->cs.wifiClock) {
           if (!hasClockSaverWifiConfig()) {
             Serial.println("[ClockSaver] WiFi not set");

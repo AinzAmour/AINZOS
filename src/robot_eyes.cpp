@@ -41,11 +41,25 @@ void initRobotEyes() {
 
 // Map the target Mood to an animation transition if we are idle
 static void handleMoodTransitions(RobotMood targetMood) {
-  // If we are currently holding a mood, and the target mood has changed, return to center
-  if ((animState == ANIM_HAPPY_HOLD && targetMood != MOOD_HAPPY) ||
-      (animState == ANIM_SLEEPING_HOLD && targetMood != MOOD_SLEEPY) ||
-      (animState == ANIM_SURPRISE_HOLD && targetMood != MOOD_SURPRISED)) {
-    animState = ANIM_RETURN_TO_CENTER;
+  // If we are currently holding a mood, and the target mood has changed, transition to return state
+  if (animState == ANIM_BLINK_HOLD && targetMood != MOOD_BLINK) {
+    snapToCenter();
+    animState = ANIM_IDLE;
+    animProgress = 0;
+  } else if (animState == ANIM_LOOK_LEFT_HOLD && targetMood != MOOD_LOOK_LEFT) {
+    animState = ANIM_LOOK_LEFT_RETURN_1;
+    animProgress = 0;
+  } else if (animState == ANIM_LOOK_RIGHT_HOLD && targetMood != MOOD_LOOK_RIGHT) {
+    animState = ANIM_LOOK_RIGHT_RETURN_1;
+    animProgress = 0;
+  } else if (animState == ANIM_HAPPY_HOLD && targetMood != MOOD_HAPPY) {
+    animState = ANIM_HAPPY_RETURN;
+    animProgress = 0;
+  } else if (animState == ANIM_SLEEPING_HOLD && targetMood != MOOD_SLEEPY) {
+    animState = ANIM_SLEEPING_RETURN;
+    animProgress = 0;
+  } else if (animState == ANIM_SURPRISE_HOLD && targetMood != MOOD_SURPRISED) {
+    animState = ANIM_SURPRISE_RETURN;
     animProgress = 0;
   }
 
@@ -57,11 +71,11 @@ static void handleMoodTransitions(RobotMood targetMood) {
       animProgress = 0;
       break;
     case MOOD_LOOK_LEFT:
-      animState = ANIM_LOOKING_LEFT;
+      animState = ANIM_LOOK_LEFT_TRANSITION_1;
       animProgress = 0;
       break;
     case MOOD_LOOK_RIGHT:
-      animState = ANIM_LOOKING_RIGHT;
+      animState = ANIM_LOOK_RIGHT_TRANSITION_1;
       animProgress = 0;
       break;
     case MOOD_HAPPY:
@@ -78,11 +92,6 @@ static void handleMoodTransitions(RobotMood targetMood) {
       break;
     case MOOD_IDLE:
     default:
-      if (left_eye.x != 64 - REF_EYE_WIDTH / 2 - REF_SPACE_BETWEEN_EYE / 2 || 
-          left_eye.height != REF_EYE_HEIGHT) {
-        animState = ANIM_RETURN_TO_CENTER;
-        animProgress = 0;
-      }
       break;
   }
 }
@@ -93,90 +102,239 @@ static void tickAnimationMachine(uint32_t now) {
   if (now - lastAnimTick < 50) return;
   lastAnimTick = now;
 
-  int speed = 8; // Pixels per frame
-
   switch(animState) {
     case ANIM_IDLE:
-      // Do nothing, handled by mood transitions
       break;
       
     case ANIM_BLINK_CLOSING:
-      left_eye.height -= speed;
-      right_eye.height -= speed;
-      left_eye.width += 2;
-      right_eye.width += 2;
+      left_eye.height -= 12;
+      right_eye.height -= 12;
+      left_eye.width += 3;
+      right_eye.width += 3;
       current_corner_radius = calculate_safe_radius(REF_CORNER_RADIUS, left_eye.width, left_eye.height);
       animProgress++;
-      if (animProgress >= 4) {
+      if (animProgress >= 3) {
         animState = ANIM_BLINK_OPENING;
         animProgress = 0;
       }
       break;
       
     case ANIM_BLINK_OPENING:
-      left_eye.height += speed;
-      right_eye.height += speed;
-      left_eye.width -= 2;
-      right_eye.width -= 2;
+      left_eye.height += 12;
+      right_eye.height += 12;
+      left_eye.width -= 3;
+      right_eye.width -= 3;
       current_corner_radius = calculate_safe_radius(REF_CORNER_RADIUS, left_eye.width, left_eye.height);
       animProgress++;
-      if (animProgress >= 4) {
+      if (animProgress >= 3) {
         snapToCenter();
-        animState = ANIM_IDLE;
+        animState = ANIM_BLINK_HOLD;
+        animProgress = 0;
       }
       break;
 
-    case ANIM_RETURN_TO_CENTER:
-      // Linear interpolation back to idle
-      snapToCenter();
-      animState = ANIM_IDLE;
+    case ANIM_BLINK_HOLD:
       break;
 
-    case ANIM_LOOKING_LEFT:
-      left_eye.x -= 4;
-      right_eye.x -= 4;
+    // LOOK LEFT TRANSITIONS:
+    case ANIM_LOOK_LEFT_TRANSITION_1:
+      left_eye.x -= 2;
+      right_eye.x -= 2;
+      left_eye.height -= 5;
+      right_eye.height -= 5;
+      left_eye.height += 1;
+      left_eye.width += 1;
       animProgress++;
-      if (animProgress >= 3) animState = ANIM_IDLE;
+      if (animProgress >= 3) {
+        animState = ANIM_LOOK_LEFT_TRANSITION_2;
+        animProgress = 0;
+      }
       break;
 
-    case ANIM_LOOKING_RIGHT:
-      left_eye.x += 4;
-      right_eye.x += 4;
+    case ANIM_LOOK_LEFT_TRANSITION_2:
+      left_eye.x -= 2;
+      right_eye.x -= 2;
+      left_eye.height += 5;
+      right_eye.height += 5;
+      left_eye.height += 1;
+      left_eye.width += 1;
       animProgress++;
-      if (animProgress >= 3) animState = ANIM_IDLE;
+      if (animProgress >= 3) {
+        animState = ANIM_LOOK_LEFT_HOLD;
+        animProgress = 0;
+      }
       break;
 
+    case ANIM_LOOK_LEFT_HOLD:
+      break;
+
+    case ANIM_LOOK_LEFT_RETURN_1:
+      left_eye.x += 2;
+      right_eye.x += 2;
+      left_eye.height -= 5;
+      right_eye.height -= 5;
+      left_eye.height -= 1;
+      left_eye.width -= 1;
+      animProgress++;
+      if (animProgress >= 3) {
+        animState = ANIM_LOOK_LEFT_RETURN_2;
+        animProgress = 0;
+      }
+      break;
+
+    case ANIM_LOOK_LEFT_RETURN_2:
+      left_eye.x += 2;
+      right_eye.x += 2;
+      left_eye.height += 5;
+      right_eye.height += 5;
+      left_eye.height -= 1;
+      left_eye.width -= 1;
+      animProgress++;
+      if (animProgress >= 3) {
+        snapToCenter();
+        animState = ANIM_IDLE;
+        animProgress = 0;
+      }
+      break;
+
+    // LOOK RIGHT TRANSITIONS:
+    case ANIM_LOOK_RIGHT_TRANSITION_1:
+      left_eye.x += 2;
+      right_eye.x += 2;
+      left_eye.height -= 5;
+      right_eye.height -= 5;
+      right_eye.height += 1;
+      right_eye.width += 1;
+      animProgress++;
+      if (animProgress >= 3) {
+        animState = ANIM_LOOK_RIGHT_TRANSITION_2;
+        animProgress = 0;
+      }
+      break;
+
+    case ANIM_LOOK_RIGHT_TRANSITION_2:
+      left_eye.x += 2;
+      right_eye.x += 2;
+      left_eye.height += 5;
+      right_eye.height += 5;
+      right_eye.height += 1;
+      right_eye.width += 1;
+      animProgress++;
+      if (animProgress >= 3) {
+        animState = ANIM_LOOK_RIGHT_HOLD;
+        animProgress = 0;
+      }
+      break;
+
+    case ANIM_LOOK_RIGHT_HOLD:
+      break;
+
+    case ANIM_LOOK_RIGHT_RETURN_1:
+      left_eye.x -= 2;
+      right_eye.x -= 2;
+      left_eye.height -= 5;
+      right_eye.height -= 5;
+      right_eye.height -= 1;
+      right_eye.width -= 1;
+      animProgress++;
+      if (animProgress >= 3) {
+        animState = ANIM_LOOK_RIGHT_RETURN_2;
+        animProgress = 0;
+      }
+      break;
+
+    case ANIM_LOOK_RIGHT_RETURN_2:
+      left_eye.x -= 2;
+      right_eye.x -= 2;
+      left_eye.height += 5;
+      right_eye.height += 5;
+      right_eye.height -= 1;
+      right_eye.width -= 1;
+      animProgress++;
+      if (animProgress >= 3) {
+        snapToCenter();
+        animState = ANIM_IDLE;
+        animProgress = 0;
+      }
+      break;
+
+    // HAPPY TRANSITIONS:
     case ANIM_HAPPY_TRANSITION:
-      // Just hold, render pass will handle the happy cutouts
       animProgress++;
-      if (animProgress >= 5) animState = ANIM_HAPPY_HOLD;
+      if (animProgress >= 10) {
+        animState = ANIM_HAPPY_HOLD;
+        animProgress = 0;
+      }
       break;
 
     case ANIM_HAPPY_HOLD:
-      // Wait for mood to change
       break;
 
+    case ANIM_HAPPY_RETURN:
+      animProgress++;
+      if (animProgress >= 10) {
+        snapToCenter();
+        animState = ANIM_IDLE;
+        animProgress = 0;
+      }
+      break;
+
+    // SLEEPY TRANSITIONS:
     case ANIM_SLEEPING_TRANSITION:
-      left_eye.height -= 4;
-      right_eye.height -= 4;
+      left_eye.height -= 2;
+      right_eye.height -= 2;
       current_corner_radius = calculate_safe_radius(REF_CORNER_RADIUS, left_eye.width, left_eye.height);
       animProgress++;
-      if (animProgress >= 8) animState = ANIM_SLEEPING_HOLD;
+      if (animProgress >= 19) {
+        animState = ANIM_SLEEPING_HOLD;
+        animProgress = 0;
+      }
       break;
 
     case ANIM_SLEEPING_HOLD:
       break;
 
+    case ANIM_SLEEPING_RETURN:
+      left_eye.height += 2;
+      right_eye.height += 2;
+      current_corner_radius = calculate_safe_radius(REF_CORNER_RADIUS, left_eye.width, left_eye.height);
+      animProgress++;
+      if (animProgress >= 19) {
+        snapToCenter();
+        animState = ANIM_IDLE;
+        animProgress = 0;
+      }
+      break;
+
+    // SURPRISE TRANSITIONS:
     case ANIM_SURPRISE_TRANSITION:
+      left_eye.height += 4;
+      right_eye.height += 4;
+      left_eye.width += 4;
+      right_eye.width += 4;
+      current_corner_radius = calculate_safe_radius(REF_CORNER_RADIUS, left_eye.width, left_eye.height);
+      animProgress++;
+      if (animProgress >= 3) {
+        animState = ANIM_SURPRISE_HOLD;
+        animProgress = 0;
+      }
+      break;
+
+    case ANIM_SURPRISE_HOLD:
+      break;
+
+    case ANIM_SURPRISE_RETURN:
       left_eye.height -= 4;
       right_eye.height -= 4;
       left_eye.width -= 4;
       right_eye.width -= 4;
+      current_corner_radius = calculate_safe_radius(REF_CORNER_RADIUS, left_eye.width, left_eye.height);
       animProgress++;
-      if (animProgress >= 4) animState = ANIM_SURPRISE_HOLD;
-      break;
-
-    case ANIM_SURPRISE_HOLD:
+      if (animProgress >= 3) {
+        snapToCenter();
+        animState = ANIM_IDLE;
+        animProgress = 0;
+      }
       break;
   }
 }
@@ -199,9 +357,17 @@ void updateRobotEyes(DisplayWrapper* display, SettingsManager* settings, RobotMo
   int y_right = right_eye.y - right_eye.height / 2;
   d->fillRoundRect(x_right, y_right, right_eye.width, right_eye.height, r_right, SSD1306_WHITE);
 
-  // If happy, overlay a black triangle on bottom half to simulate a cheek raise smile
-  if (animState == ANIM_HAPPY_TRANSITION || animState == ANIM_HAPPY_HOLD) {
-    int offset = 10;
+  // Draw happy cheeks overlay if in transition, hold or return
+  int offset = -1; // Default: no cheeks
+  if (animState == ANIM_HAPPY_TRANSITION) {
+    offset = 20 - (animProgress * 2);
+  } else if (animState == ANIM_HAPPY_HOLD) {
+    offset = 0;
+  } else if (animState == ANIM_HAPPY_RETURN) {
+    offset = animProgress * 2;
+  }
+
+  if (offset >= 0) {
     d->fillTriangle(x_left - 1, y_left + offset, x_left + left_eye.width + 1, y_left + 5 + offset, x_left - 1, y_left + left_eye.height + offset, SSD1306_BLACK);
     d->fillTriangle(x_right + right_eye.width + 1, y_right + offset, x_right - 2, y_right + 5 + offset, x_right + right_eye.width + 1, y_right + right_eye.height + offset, SSD1306_BLACK);
   }
