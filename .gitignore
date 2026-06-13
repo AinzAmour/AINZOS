@@ -1,0 +1,13 @@
+.pio
+.vscode
+.DS_Store
+*.bin
+*.elf
+*.hex
+*.a
+*.o
+*.obj
+*.su
+*.pyc
+*.pyo
+__pycache__/
