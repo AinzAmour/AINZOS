@@ -54,7 +54,7 @@ void MainWindow::begin() {
   Serial.begin(115200);
   delay(200);
   Serial.println();
-  Serial.println("[BOOT] HIZMOS-C3 starting");
+  Serial.println("[BOOT] AINZOS starting");
   Serial.println("[BOOT] Serial OK");
   
   buttons.begin();
@@ -226,7 +226,7 @@ void MainWindow::changePage(Page newPage) {
   stateStartTime = millis();
   
   if (currentPage == Page::Main) {
-    display.drawMenu("HIZMOS-C3", mainMenuItems, MAIN_MENU_COUNT, mainSelectedIndex, mainTopIndex);
+    display.drawMenu("AINZOS", mainMenuItems, MAIN_MENU_COUNT, mainSelectedIndex, mainTopIndex);
   } else if (currentPage == Page::WiFiMenu) {
     if (wifiUI && wifiUI->getCurrentPage() == WifiPage::ResultsList) {
       wifiUI->enter(WifiPage::ResultsList);
@@ -263,11 +263,11 @@ void MainWindow::changePage(Page newPage) {
     irUI->enter();
   } else if (currentPage == Page::About) {
     const char* lines[] = {
-      "HIZMOS-C3",
+      "AINZOS",
       HIZMOS_VERSION,
       "ESP32-C3 SuperMini",
       "Lab Testing Only",
-      "Author: AI"
+      "Author: AinZ"
     };
     display.drawInfoPage("About", lines, 5);
   } else if (currentPage == Page::NotImplemented) {
@@ -290,8 +290,8 @@ void MainWindow::handleBoot(ButtonEvent btn) {
     
     d->setTextSize(1);
     d->setTextColor(SSD1306_WHITE);
-    d->setCursor(12, 6);
-    d->print(F("H I Z M O S - C 3"));
+    d->setCursor(35, 6);
+    d->print(F("A I N Z O S"));
     d->drawFastHLine(6, 16, 116, SSD1306_WHITE);
     
     d->setCursor(8, 22);
@@ -356,10 +356,13 @@ void MainWindow::handleMain(ButtonEvent btn) {
       default: changePage(Page::NotImplemented); break;
     }
     return;
+  } else if (btn == BTN_BACK || btn == BTN_BACK_LONG) {
+    triggerClockSaverMode(1); // Manually trigger Clock/Pet mode from Main Menu
+    return;
   }
   
   if (redraw) {
-    display.drawMenu("HIZMOS-C3", mainMenuItems, MAIN_MENU_COUNT, mainSelectedIndex, mainTopIndex);
+    display.drawMenu("AINZOS", mainMenuItems, MAIN_MENU_COUNT, mainSelectedIndex, mainTopIndex);
   }
 }
 

@@ -96,7 +96,7 @@ void SettingsUI::handleSelection() {
       else if (settings->contrast < 127) settings->contrast = 127;
       else if (settings->contrast < 191) settings->contrast = 191;
       else if (settings->contrast < 255) settings->contrast = 255;
-      else settings->contrast = 0;
+      else settings->contrast = 1;
       display->setContrast(settings->contrast);
       break;
     case 1: // Animation
