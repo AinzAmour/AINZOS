@@ -61,10 +61,18 @@ bool Diagnostics::update(ButtonEvent btn) {
     return true;
   }
   
-  if (btn == BTN_BACK || btn == BTN_BACK_LONG) {
-    currentPage = DiagPage::Menu;
-    drawMenu();
-    return true;
+  if (currentPage == DiagPage::ButtonTest) {
+    if (btn == BTN_BACK_LONG) {
+      currentPage = DiagPage::Menu;
+      drawMenu();
+      return true;
+    }
+  } else {
+    if (btn == BTN_BACK || btn == BTN_BACK_LONG) {
+      currentPage = DiagPage::Menu;
+      drawMenu();
+      return true;
+    }
   }
   
   if (currentPage == DiagPage::ButtonTest) {
@@ -125,25 +133,34 @@ void Diagnostics::drawButtonTest(ButtonEvent btn) {
   
   auto d = display->getDriver();
   d->setCursor(2, 12);
-  d->printf("UP (0): %d\n", digitalRead(0) == LOW);
+  d->printf("UP (0): %d", digitalRead(0) == LOW);
   d->setCursor(2, 22);
-  d->printf("DOWN (1): %d\n", digitalRead(1) == LOW);
-  d->setCursor(64, 12);
-  d->printf("SEL (3): %d\n", digitalRead(3) == LOW);
-  d->setCursor(64, 22);
-  d->printf("BACK(10): %d\n", digitalRead(10) == LOW);
+  d->printf("DOWN (1): %d", digitalRead(1) == LOW);
+  d->setCursor(2, 32);
+  d->printf("LEFT (2): %d", digitalRead(2) == LOW);
   
-  d->setCursor(2, 40);
+  d->setCursor(68, 12);
+  d->printf("SEL (3): %d", digitalRead(3) == LOW);
+  d->setCursor(68, 22);
+  d->printf("BACK(10): %d", digitalRead(10) == LOW);
+  d->setCursor(68, 32);
+  d->printf("RIGHT(6): %d", digitalRead(6) == LOW);
+  
+  d->setCursor(2, 46);
   d->print(F("Last Event: "));
   switch(btn) {
     case BTN_UP: d->print(F("UP")); break;
     case BTN_DOWN: d->print(F("DOWN")); break;
+    case BTN_LEFT: d->print(F("LEFT")); break;
+    case BTN_RIGHT: d->print(F("RIGHT")); break;
     case BTN_SELECT: d->print(F("SELECT")); break;
     case BTN_BACK: d->print(F("BACK")); break;
-    case BTN_UP_LONG: d->print(F("UP_LONG")); break;
-    case BTN_DOWN_LONG: d->print(F("DOWN_LONG")); break;
-    case BTN_SELECT_LONG: d->print(F("SELECT_LONG")); break;
-    case BTN_BACK_LONG: d->print(F("BACK_LONG")); break;
+    case BTN_UP_LONG: d->print(F("UP LONG")); break;
+    case BTN_DOWN_LONG: d->print(F("DOWN LONG")); break;
+    case BTN_LEFT_LONG: d->print(F("LEFT LONG")); break;
+    case BTN_RIGHT_LONG: d->print(F("RIGHT LONG")); break;
+    case BTN_SELECT_LONG: d->print(F("SELECT LONG")); break;
+    case BTN_BACK_LONG: d->print(F("BACK LONG")); break;
     case BTN_NONE: d->print(F("NONE")); break;
   }
   d->display();
@@ -157,6 +174,18 @@ void Diagnostics::handleSysMonitor(ButtonEvent btn) {
   } else if (btn == BTN_UP) {
     sysMonitorPager.moveUp();
     redraw = true;
+  } else if (btn == BTN_RIGHT) {
+    if (sysMonitorPager.hasNext()) {
+      sysMonitorPager.nextPage();
+      sysMonitorPager.selectedIdx = sysMonitorPager.pageStart();
+      redraw = true;
+    }
+  } else if (btn == BTN_LEFT) {
+    if (sysMonitorPager.hasPrev()) {
+      sysMonitorPager.prevPage();
+      sysMonitorPager.selectedIdx = sysMonitorPager.pageStart();
+      redraw = true;
+    }
   }
   
   if (redraw || millis() - lastRefreshTime > 1000 || lastRefreshTime == 0) {
