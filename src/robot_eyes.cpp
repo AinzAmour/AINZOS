@@ -339,48 +339,6 @@ static void tickAnimationMachine(uint32_t now) {
   }
 }
 
-static const char* moodToStr(RobotMood m) {
-  switch(m) {
-    case MOOD_IDLE: return "IDLE";
-    case MOOD_HAPPY: return "HAPPY";
-    case MOOD_SLEEPY: return "SLEEPY";
-    case MOOD_BLINK: return "BLINK";
-    case MOOD_LOOK_LEFT: return "LEFT";
-    case MOOD_LOOK_RIGHT: return "RIGHT";
-    case MOOD_SURPRISED: return "SURPR";
-    default: return "UNK";
-  }
-}
-
-static const char* stateToStr(EyeAnimState s) {
-  switch(s) {
-    case ANIM_IDLE: return "IDLE";
-    case ANIM_BLINK_CLOSING: return "B_CLS";
-    case ANIM_BLINK_OPENING: return "B_OPN";
-    case ANIM_BLINK_HOLD: return "B_HLD";
-    case ANIM_LOOK_LEFT_TRANSITION_1: return "L_TR1";
-    case ANIM_LOOK_LEFT_TRANSITION_2: return "L_TR2";
-    case ANIM_LOOK_LEFT_HOLD: return "L_HLD";
-    case ANIM_LOOK_LEFT_RETURN_1: return "L_RT1";
-    case ANIM_LOOK_LEFT_RETURN_2: return "L_RT2";
-    case ANIM_LOOK_RIGHT_TRANSITION_1: return "R_TR1";
-    case ANIM_LOOK_RIGHT_TRANSITION_2: return "R_TR2";
-    case ANIM_LOOK_RIGHT_HOLD: return "R_HLD";
-    case ANIM_LOOK_RIGHT_RETURN_1: return "R_RT1";
-    case ANIM_LOOK_RIGHT_RETURN_2: return "R_RT2";
-    case ANIM_HAPPY_TRANSITION: return "H_TRN";
-    case ANIM_HAPPY_HOLD: return "H_HLD";
-    case ANIM_HAPPY_RETURN: return "H_RET";
-    case ANIM_SLEEPING_TRANSITION: return "S_TRN";
-    case ANIM_SLEEPING_HOLD: return "S_HLD";
-    case ANIM_SLEEPING_RETURN: return "S_RET";
-    case ANIM_SURPRISE_TRANSITION: return "U_TRN";
-    case ANIM_SURPRISE_HOLD: return "U_HLD";
-    case ANIM_SURPRISE_RETURN: return "U_RET";
-    default: return "UNK";
-  }
-}
-
 void updateRobotEyes(DisplayWrapper* display, SettingsManager* settings, RobotMood targetMood, uint32_t now) {
   handleMoodTransitions(targetMood);
   tickAnimationMachine(now);
@@ -419,16 +377,6 @@ void updateRobotEyes(DisplayWrapper* display, SettingsManager* settings, RobotMo
     d->fillTriangle(x_right - 2, right_eye.y + 5 + offset, x_right - 2, right_eye.y + right_eye.height + offset, x_right + right_eye.width + 1, right_eye.y + right_eye.height + offset, SSD1306_BLACK);
   }
 
-  // Draw active mood & animation state for debugging
-  d->setTextSize(1);
-  d->setTextColor(SSD1306_WHITE);
-  
-  d->setCursor(2, 54);
-  d->print(moodToStr(targetMood));
-
-  d->setCursor(92, 54);
-  d->print(stateToStr(animState));
-
   // Overlay small time
   struct tm timeinfo;
   if (getLocalTime(&timeinfo, 0)) {
@@ -439,6 +387,8 @@ void updateRobotEyes(DisplayWrapper* display, SettingsManager* settings, RobotMo
       if (h == 0) h = 12;
     }
     snprintf(timeStr, sizeof(timeStr), "%02d:%02d", h, timeinfo.tm_min);
+    d->setTextSize(1);
+    d->setTextColor(SSD1306_WHITE);
     // Draw at bottom center
     d->setCursor(48, 54);
     d->print(timeStr);
