@@ -242,6 +242,18 @@ void BleUI::handleResultsList(ButtonEvent btn) {
   } else if (btn == BTN_UP) {
     resultsPager.moveUp();
     redraw = true;
+  } else if (btn == BTN_RIGHT) {
+    if (resultsPager.hasNext()) {
+      resultsPager.nextPage();
+      resultsPager.selectedIdx = resultsPager.pageStart();
+      redraw = true;
+    }
+  } else if (btn == BTN_LEFT) {
+    if (resultsPager.hasPrev()) {
+      resultsPager.prevPage();
+      resultsPager.selectedIdx = resultsPager.pageStart();
+      redraw = true;
+    }
   } else if (btn == BTN_SELECT) {
     navStack.push(Page::BLEMenu);
     window.changePage(Page::BLEDetails);

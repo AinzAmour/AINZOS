@@ -186,6 +186,18 @@ void AppsUI::handleBleInspector(ButtonEvent btn) {
     } else if (btn == BTN_UP) {
       inspectPager.moveUp();
       redraw = true;
+    } else if (btn == BTN_RIGHT) {
+      if (inspectPager.hasNext()) {
+        inspectPager.nextPage();
+        inspectPager.selectedIdx = inspectPager.pageStart();
+        redraw = true;
+      }
+    } else if (btn == BTN_LEFT) {
+      if (inspectPager.hasPrev()) {
+        inspectPager.prevPage();
+        inspectPager.selectedIdx = inspectPager.pageStart();
+        redraw = true;
+      }
     } else if (btn == BTN_SELECT) {
       selectedDeviceIdx = inspectPager.selectedIdx;
       inspectPager.reset();
@@ -241,6 +253,18 @@ void AppsUI::handleBleInspector(ButtonEvent btn) {
     } else if (btn == BTN_UP) {
       inspectPager.moveUp();
       redraw = true;
+    } else if (btn == BTN_RIGHT) {
+      if (inspectPager.hasNext()) {
+        inspectPager.nextPage();
+        inspectPager.selectedIdx = inspectPager.pageStart();
+        redraw = true;
+      }
+    } else if (btn == BTN_LEFT) {
+      if (inspectPager.hasPrev()) {
+        inspectPager.prevPage();
+        inspectPager.selectedIdx = inspectPager.pageStart();
+        redraw = true;
+      }
     } else if (btn == BTN_BACK || btn == BTN_BACK_LONG) {
       selectedDeviceIdx = 255;
       inspectPager.reset();

@@ -189,6 +189,18 @@ void WifiUI::handleResultsList(ButtonEvent btn) {
   } else if (btn == BTN_UP) {
     resultsPager.moveUp();
     redraw = true;
+  } else if (btn == BTN_RIGHT) {
+    if (resultsPager.hasNext()) {
+      resultsPager.nextPage();
+      resultsPager.selectedIdx = resultsPager.pageStart();
+      redraw = true;
+    }
+  } else if (btn == BTN_LEFT) {
+    if (resultsPager.hasPrev()) {
+      resultsPager.prevPage();
+      resultsPager.selectedIdx = resultsPager.pageStart();
+      redraw = true;
+    }
   } else if (btn == BTN_SELECT) {
     navStack.push(Page::WiFiMenu);
     window.changePage(Page::WiFiDetails);
@@ -206,6 +218,18 @@ void WifiUI::handleProbeMonitor(ButtonEvent btn) {
   } else if (btn == BTN_UP) {
     probePager.moveUp();
     redraw = true;
+  } else if (btn == BTN_RIGHT) {
+    if (probePager.hasNext()) {
+      probePager.nextPage();
+      probePager.selectedIdx = probePager.pageStart();
+      redraw = true;
+    }
+  } else if (btn == BTN_LEFT) {
+    if (probePager.hasPrev()) {
+      probePager.prevPage();
+      probePager.selectedIdx = probePager.pageStart();
+      redraw = true;
+    }
   }
   
   // Always redraw to update elapsed timers/counts

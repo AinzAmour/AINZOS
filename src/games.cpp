@@ -88,9 +88,13 @@ void GamesUI::handleSnake(ButtonEvent btn) {
   }
   
   if (btn == BTN_UP) {
-    snakeDir = (snakeDir + 3) % 4; // Turn Left relatively
+    if (snakeDir != 2) snakeDir = 0;
   } else if (btn == BTN_DOWN) {
-    snakeDir = (snakeDir + 1) % 4; // Turn Right relatively
+    if (snakeDir != 0) snakeDir = 2;
+  } else if (btn == BTN_LEFT) {
+    if (snakeDir != 1) snakeDir = 3;
+  } else if (btn == BTN_RIGHT) {
+    if (snakeDir != 3) snakeDir = 1;
   }
   
   int speed = 150;
