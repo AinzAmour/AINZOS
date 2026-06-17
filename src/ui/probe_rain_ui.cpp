@@ -41,14 +41,18 @@ bool ProbeRainUI::update(ButtonEvent btn) {
   // Channel hopping is handled by updateProbeHopper() in main loop
 
   // Check for new probe requests
-  if (probeCount != lastProbeCount) {
-    // New probes arrived — feed them into rain columns
-    for (uint8_t i = 0; i < probeCount; i++) {
-      if (probeResults[i].ssid[0] != '\0') {
-        assignProbe(probeResults[i].ssid);
+  if (totalProbesSeen != capturedCount) {
+    uint32_t diff = totalProbesSeen - capturedCount;
+    if (diff > NUM_COLUMNS) diff = NUM_COLUMNS;
+    
+    for (uint32_t i = 0; i < diff; i++) {
+      if (probeCount > 0) {
+        int idx = random(0, probeCount);
+        if (probeResults[idx].ssid[0] != '\0') {
+          assignProbe(probeResults[idx].ssid);
+        }
       }
     }
-    lastProbeCount = probeCount;
     capturedCount = totalProbesSeen;
   }
 

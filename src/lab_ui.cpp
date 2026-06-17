@@ -240,7 +240,7 @@ bool LabUI::update(ButtonEvent btn) {
 void LabUI::handleMenu(ButtonEvent btn) {
   if (btn == BTN_DOWN && menuSel < LAB_MENU_COUNT - 1) {
     menuSel++;
-    if (menuSel >= menuTop + 5) menuTop++;
+    if (menuSel >= menuTop + 4) menuTop++;
     drawMenu();
   } else if (btn == BTN_UP && menuSel > 0) {
     menuSel--;
@@ -279,7 +279,7 @@ void LabUI::handleBLESpam(ButtonEvent btn) {
   }
   if (btn == BTN_DOWN && bleSel < BLE_SPAM_COUNT - 1) {
     bleSel++;
-    if (bleSel >= bleTop + 5) bleTop++;
+    if (bleSel >= bleTop + 4) bleTop++;
     drawBLESpamMenu();
   } else if (btn == BTN_UP && bleSel > 0) {
     bleSel--;
@@ -345,7 +345,7 @@ void LabUI::handleWiFiAttacks(ButtonEvent btn) {
   }
   if (btn == BTN_DOWN && wifiSel < WIFI_ATTACK_COUNT - 1) {
     wifiSel++;
-    if (wifiSel >= wifiTop + 5) wifiTop++;
+    if (wifiSel >= wifiTop + 4) wifiTop++;
     drawWiFiAttackMenu();
   } else if (btn == BTN_UP && wifiSel > 0) {
     wifiSel--;
