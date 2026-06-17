@@ -38,6 +38,7 @@ MainWindow::MainWindow() {
   appsUI = nullptr;
   gamesUI = nullptr;
   irUI = nullptr;
+  labUI = nullptr;
 }
 
 MainWindow::~MainWindow() {
@@ -48,6 +49,7 @@ MainWindow::~MainWindow() {
   if (appsUI) delete appsUI;
   if (gamesUI) delete gamesUI;
   if (irUI) delete irUI;
+  if (labUI) delete labUI;
 }
 
 void MainWindow::begin() {
@@ -86,6 +88,7 @@ void MainWindow::begin() {
   appsUI = new AppsUI(&display, wifiUI->getScanner(), bleUI->getScanner());
   gamesUI = new GamesUI(&display, &settings);
   irUI = new IrUI(&display);
+  labUI = new LabUI(&display);
   ir_manager_init();
   
   stateStartTime = millis();
@@ -190,6 +193,9 @@ void MainWindow::update() {
     case Page::IRMenu:
       if (!irUI->update(btn)) changePage(navStack.pop());
       break;
+    case Page::LabToolsMenu:
+      if (!labUI->update(btn)) changePage(navStack.pop());
+      break;
     case Page::NotImplemented:
     default: handleNotImplemented(btn); break;
   }
@@ -205,12 +211,23 @@ void MainWindow::changePage(Page newPage) {
   // Radio coexistence checks before changing page
   bool enteringWiFi = (newPage == Page::WiFiMenu || newPage == Page::WiFiDetails || newPage == Page::WiFiProbeMonitor || newPage == Page::WiFiChannelOccupancy);
   bool enteringBLE = (newPage == Page::BLEMenu || newPage == Page::BLEDetails || newPage == Page::BLEPacketInspector);
+  bool enteringLabTools = (newPage == Page::LabToolsMenu);
 
   if (enteringWiFi && currentRadioState != RadioState::RADIO_WIFI) {
     if (currentRadioState == RadioState::RADIO_BLE) {
       NimBLEDevice::deinit(true);
     }
     currentRadioState = RadioState::RADIO_WIFI;
+  } else if (enteringLabTools) {
+    if (currentRadioState == RadioState::RADIO_BLE) {
+      NimBLEDevice::deinit(true);
+    }
+    if (currentRadioState == RadioState::RADIO_WIFI) {
+      esp_wifi_set_promiscuous(false);
+      WiFi.disconnect(true);
+      WiFi.mode(WIFI_OFF);
+    }
+    currentRadioState = RadioState::RADIO_OFF;
   } else if (enteringBLE && currentRadioState != RadioState::RADIO_BLE) {
     if (currentRadioState == RadioState::RADIO_WIFI) {
       // Deactivate Wi-Fi sniffer/promiscuous and modes
@@ -261,6 +278,8 @@ void MainWindow::changePage(Page newPage) {
     settingsUI->enter();
   } else if (currentPage == Page::IRMenu) {
     irUI->enter();
+  } else if (currentPage == Page::LabToolsMenu) {
+    labUI->enter();
   } else if (currentPage == Page::About) {
     const char* lines[] = {
       "AINZOS",
@@ -387,7 +406,7 @@ void MainWindow::handleMain(ButtonEvent btn) {
     switch (mainSelectedIndex) {
       case 0: changePage(Page::WiFiMenu); break;
       case 1: changePage(Page::BLEMenu); break;
-      case 2: changePage(Page::NotImplemented); break; // Lab Tools
+      case 2: changePage(Page::LabToolsMenu); break; // Lab Tools
       case 3: changePage(Page::IRMenu); break;         // IR Tools
       case 4: changePage(Page::AppsMenu); break;
       case 5: changePage(Page::GamesMenu); break;

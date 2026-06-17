@@ -3,6 +3,10 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Start the EAPOL logoff attack
  */
@@ -28,5 +32,9 @@ void eapol_logoff_help(void);
  * @return true if running, false otherwise
  */
 bool eapol_logoff_is_running(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // EAPOL_LOGOFF_H

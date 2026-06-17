@@ -4,6 +4,16 @@ All notable changes to the HIZMOS-C3 project will be documented in this file.
 
 ---
 
+## [v2.1.0] - 2026-06-14 (Lab Tools & BLE Spam Release)
+
+### Added
+- **Lab Tools Module**: Implemented a comprehensive Wi-Fi and BLE testing suite accessible via the main menu.
+  - **BLE Spam**: Ported reference Flipper Zero attacks including Apple Continuity (AirPods pairing, Nearby Action, and Custom iOS 17 Crash), Microsoft SwiftPair, Samsung EasySetup, Google FastPair (genuine & custom popups), and Flipper Zero spam. Features random MAC rotation and advertising interval optimization.
+  - **Wi-Fi Attacks**: Integrated offensive testing tools including Beacon Spam (with support for custom lists and Rickroll/AP modes), Deauth Attack (AP/Station targets), Channel Switch Announcement, DHCP Starvation, EAPOL Logoff, and GTK Abuse validation.
+- **Dynamic Radio Coexistence Management**: Configured automated deinitialization of NimBLE and Wi-Fi modes on state change to prevent single-core hardware conflicts.
+
+---
+
 ## [v1.0.1] - 2026-06-12 (Stage 5.1 Polish Build)
 
 ### Added

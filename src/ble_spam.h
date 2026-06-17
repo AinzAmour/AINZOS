@@ -29,6 +29,10 @@ typedef enum {
     BLE_SPAM_RANDOM         ///< Random mix of all spam types
 } ble_spam_type_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Start BLE spam attack
  * 
@@ -47,5 +51,9 @@ void ble_spam_stop(void);
  * @return true if spam is running, false otherwise
  */
 bool ble_spam_is_running(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BLE_SPAM_H

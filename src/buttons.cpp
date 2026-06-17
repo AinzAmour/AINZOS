@@ -77,12 +77,10 @@ ButtonEvent Buttons::read() {
         }
       }
       
-      // Long press (only SEL and BACK)
-      if (i == 2 || i == 3) {
-        if (!longPressFired[i] && holdTime >= LONG_PRESS_MS) {
-          longPressFired[i] = true;
-          return longEventMap[i];
-        }
+      // Long press (all buttons)
+      if (!longPressFired[i] && holdTime >= LONG_PRESS_MS) {
+        longPressFired[i] = true;
+        return longEventMap[i];
       }
     }
   }

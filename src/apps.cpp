@@ -186,13 +186,13 @@ void AppsUI::handleBleInspector(ButtonEvent btn) {
     } else if (btn == BTN_UP) {
       inspectPager.moveUp();
       redraw = true;
-    } else if (btn == BTN_RIGHT) {
+    } else if (btn == BTN_DOWN_LONG) {
       if (inspectPager.hasNext()) {
         inspectPager.nextPage();
         inspectPager.selectedIdx = inspectPager.pageStart();
         redraw = true;
       }
-    } else if (btn == BTN_LEFT) {
+    } else if (btn == BTN_UP_LONG) {
       if (inspectPager.hasPrev()) {
         inspectPager.prevPage();
         inspectPager.selectedIdx = inspectPager.pageStart();
@@ -253,13 +253,13 @@ void AppsUI::handleBleInspector(ButtonEvent btn) {
     } else if (btn == BTN_UP) {
       inspectPager.moveUp();
       redraw = true;
-    } else if (btn == BTN_RIGHT) {
+    } else if (btn == BTN_DOWN_LONG) {
       if (inspectPager.hasNext()) {
         inspectPager.nextPage();
         inspectPager.selectedIdx = inspectPager.pageStart();
         redraw = true;
       }
-    } else if (btn == BTN_LEFT) {
+    } else if (btn == BTN_UP_LONG) {
       if (inspectPager.hasPrev()) {
         inspectPager.prevPage();
         inspectPager.selectedIdx = inspectPager.pageStart();

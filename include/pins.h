@@ -14,7 +14,15 @@
 #define BUTTON_UP_PIN 0
 #define BUTTON_DOWN_PIN 1
 
-#define SK6812_PIN 6
+// 2x4 RF/GPIO Expansion Header (GND, 3V3, 2, 6, 20, 21, 8, 9)
+#define RF_GPIO_PIN_1 2
+#define RF_GPIO_PIN_2 6
+#define RF_GPIO_PIN_3 20
+#define RF_GPIO_PIN_4 21
+#define RF_GPIO_PIN_5 8
+#define RF_GPIO_PIN_6 9
+
+#define SK6812_PIN 11
 #define IR_LED_PIN 7
 
 #endif

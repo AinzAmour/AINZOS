@@ -189,13 +189,13 @@ void WifiUI::handleResultsList(ButtonEvent btn) {
   } else if (btn == BTN_UP) {
     resultsPager.moveUp();
     redraw = true;
-  } else if (btn == BTN_RIGHT) {
+  } else if (btn == BTN_DOWN_LONG) {
     if (resultsPager.hasNext()) {
       resultsPager.nextPage();
       resultsPager.selectedIdx = resultsPager.pageStart();
       redraw = true;
     }
-  } else if (btn == BTN_LEFT) {
+  } else if (btn == BTN_UP_LONG) {
     if (resultsPager.hasPrev()) {
       resultsPager.prevPage();
       resultsPager.selectedIdx = resultsPager.pageStart();
@@ -218,13 +218,13 @@ void WifiUI::handleProbeMonitor(ButtonEvent btn) {
   } else if (btn == BTN_UP) {
     probePager.moveUp();
     redraw = true;
-  } else if (btn == BTN_RIGHT) {
+  } else if (btn == BTN_DOWN_LONG) {
     if (probePager.hasNext()) {
       probePager.nextPage();
       probePager.selectedIdx = probePager.pageStart();
       redraw = true;
     }
-  } else if (btn == BTN_LEFT) {
+  } else if (btn == BTN_UP_LONG) {
     if (probePager.hasPrev()) {
       probePager.prevPage();
       probePager.selectedIdx = probePager.pageStart();

@@ -132,36 +132,29 @@ void Diagnostics::drawButtonTest(ButtonEvent btn) {
   display->drawStatusBar("Button Test", RadioState::RADIO_OFF);
   
   auto d = display->getDriver();
-  d->setCursor(2, 12);
+  d->setCursor(2, 16);
   d->printf("UP (0): %d", digitalRead(0) == LOW);
-  d->setCursor(2, 22);
+  d->setCursor(2, 28);
   d->printf("DOWN (1): %d", digitalRead(1) == LOW);
-  d->setCursor(2, 32);
-  d->printf("LEFT (2): %d", digitalRead(2) == LOW);
   
-  d->setCursor(68, 12);
+  d->setCursor(68, 16);
   d->printf("SEL (3): %d", digitalRead(3) == LOW);
-  d->setCursor(68, 22);
+  d->setCursor(68, 28);
   d->printf("BACK(10): %d", digitalRead(10) == LOW);
-  d->setCursor(68, 32);
-  d->printf("RIGHT(6): %d", digitalRead(6) == LOW);
   
   d->setCursor(2, 46);
   d->print(F("Last Event: "));
   switch(btn) {
     case BTN_UP: d->print(F("UP")); break;
     case BTN_DOWN: d->print(F("DOWN")); break;
-    case BTN_LEFT: d->print(F("LEFT")); break;
-    case BTN_RIGHT: d->print(F("RIGHT")); break;
     case BTN_SELECT: d->print(F("SELECT")); break;
     case BTN_BACK: d->print(F("BACK")); break;
     case BTN_UP_LONG: d->print(F("UP LONG")); break;
     case BTN_DOWN_LONG: d->print(F("DOWN LONG")); break;
-    case BTN_LEFT_LONG: d->print(F("LEFT LONG")); break;
-    case BTN_RIGHT_LONG: d->print(F("RIGHT LONG")); break;
     case BTN_SELECT_LONG: d->print(F("SELECT LONG")); break;
     case BTN_BACK_LONG: d->print(F("BACK LONG")); break;
     case BTN_NONE: d->print(F("NONE")); break;
+    default: d->print(F("N/A")); break;
   }
   d->display();
 }
@@ -174,13 +167,13 @@ void Diagnostics::handleSysMonitor(ButtonEvent btn) {
   } else if (btn == BTN_UP) {
     sysMonitorPager.moveUp();
     redraw = true;
-  } else if (btn == BTN_RIGHT) {
+  } else if (btn == BTN_DOWN_LONG) {
     if (sysMonitorPager.hasNext()) {
       sysMonitorPager.nextPage();
       sysMonitorPager.selectedIdx = sysMonitorPager.pageStart();
       redraw = true;
     }
-  } else if (btn == BTN_LEFT) {
+  } else if (btn == BTN_UP_LONG) {
     if (sysMonitorPager.hasPrev()) {
       sysMonitorPager.prevPage();
       sysMonitorPager.selectedIdx = sysMonitorPager.pageStart();

@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void channel_switch_attack_start(void);
 
 void channel_switch_attack_stop(void);
@@ -13,5 +17,9 @@ bool channel_switch_attack_is_running(void);
 uint32_t channel_switch_attack_get_packets_sent(void);
 
 void channel_switch_attack_reset_packet_counter(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

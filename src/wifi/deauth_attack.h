@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include "esp_err.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Start the deauthentication attack
  */
@@ -49,5 +53,26 @@ uint32_t deauth_attack_get_packets_sent(void);
  * @brief Reset the packet counter
  */
 void deauth_attack_reset_packet_counter(void);
+
+/**
+ * @brief Check if deauth attack is currently running
+ */
+bool deauth_attack_is_running(void);
+
+/**
+ * @brief Get the currently locked WiFi channel during attack
+ * @return Channel number (0 if not running)
+ */
+int deauth_attack_get_current_channel(void);
+
+/**
+ * @brief Get elapsed time since attack started
+ * @return Elapsed milliseconds (0 if not running)
+ */
+uint32_t deauth_attack_get_elapsed_ms(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DEAUTH_ATTACK_H

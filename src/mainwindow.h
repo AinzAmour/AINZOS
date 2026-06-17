@@ -13,6 +13,7 @@
 #include "apps.h"
 #include "games.h"
 #include "ir_ui.h"
+#include "lab_ui.h"
 
 #include "nav_stack.h"
 
@@ -50,6 +51,7 @@ private:
   AppsUI* appsUI;
   GamesUI* gamesUI;
   IrUI* irUI;
+  LabUI* labUI;
   
   Page currentPage;
   unsigned long stateStartTime;

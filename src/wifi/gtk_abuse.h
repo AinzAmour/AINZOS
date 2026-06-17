@@ -3,6 +3,10 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     char ssid[33];
     bool connected;
@@ -22,5 +26,9 @@ void gtk_abuse_stop(void);
 bool gtk_abuse_is_running(void);
 void gtk_abuse_display(void);
 const gtk_abuse_result_t *gtk_abuse_get_result(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

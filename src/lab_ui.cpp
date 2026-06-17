@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "text_input_ui.h"
+#include "esp_system.h"
 
 LabUI::LabUI(DisplayWrapper* disp)
   : display(disp), currentPage(LabPage::Menu),
@@ -417,6 +418,7 @@ void LabUI::drawWiFiAttackMenu() {
   // Draw menu items below subtitle, reserve one line for subtitle
   int maxVisible = 4;
   int startY = 24;
+
   for (int i = 0; i < maxVisible; i++) {
     int itemIdx = wifiTop + i;
     if (itemIdx >= WIFI_ATTACK_COUNT) break;
@@ -434,11 +436,57 @@ void LabUI::drawWiFiAttackMenu() {
 }
 
 void LabUI::drawWiFiAttackRunning() {
-  const char* lines[] = {
-    wifiAttackItems[wifiSel],
-    "WiFi Attack: ON",
-    "Attacking...",
-    "SELECT to stop"
-  };
-  display->drawInfoPage("WiFi Attacks", lines, 4);
+  // For Deauth Attack (wifiSel == 3), show channel and elapsed time
+  if (wifiSel == 3) {
+    int channel = deauth_attack_get_current_channel();
+    uint32_t elapsed = deauth_attack_get_elapsed_ms();
+    uint32_t elapsed_sec = elapsed / 1000;
+    
+    display->clear();
+    display->drawHeader("WiFi Attacks");
+    Adafruit_SSD1306* d = display->getDriver();
+    d->setTextSize(1);
+    d->setTextColor(SSD1306_WHITE);
+    
+    // Status line
+    d->setCursor(2, 12);
+    d->print("Deauth Attack: ON");
+    
+    // Channel and time
+    d->setCursor(2, 24);
+    char buf[32];
+    if (channel > 0) {
+      snprintf(buf, sizeof(buf), "Channel: %d", channel);
+      d->print(buf);
+    } else {
+      d->print("Scanning...");
+    }
+    
+    d->setCursor(2, 34);
+    snprintf(buf, sizeof(buf), "Elapsed: %lus", elapsed_sec);
+    d->print(buf);
+    
+    // PMF warning after 3 seconds
+    if (elapsed >= 3000) {
+      d->setCursor(2, 44);
+      d->setTextSize(1);
+      d->setTextColor(SSD1306_WHITE);
+      d->print("No effect: PMF?");
+    }
+    
+    // Stop instruction
+    d->setCursor(2, 54);
+    d->print("SELECT to stop");
+    
+    d->display();
+  } else {
+    // Generic display for other attacks
+    const char* lines[] = {
+      wifiAttackItems[wifiSel],
+      "WiFi Attack: ON",
+      "Attacking...",
+      "SELECT to stop"
+    };
+    display->drawInfoPage("WiFi Attacks", lines, 4);
+  }
 }

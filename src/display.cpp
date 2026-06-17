@@ -10,6 +10,7 @@ bool DisplayWrapper::begin() {
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     return false;
   }
+  display.setRotation(2);
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
@@ -22,6 +23,7 @@ void DisplayWrapper::clear() {
 }
 
 void DisplayWrapper::drawHeader(const char* title) {
+  display.setTextSize(1);
   display.fillRect(0, 0, SCREEN_WIDTH, 10, SSD1306_WHITE);
   display.setTextColor(SSD1306_BLACK);
   display.setCursor(2, 1);
@@ -33,6 +35,7 @@ void DisplayWrapper::drawMenu(const char* title, const char* items[], int itemCo
   clear();
   drawHeader(title);
   
+  display.setTextSize(1);
   int maxVisible = 5; 
   int startY = 12;
   
@@ -58,6 +61,7 @@ void DisplayWrapper::drawMenu(const char* title, const char* items[], int itemCo
 void DisplayWrapper::drawInfoPage(const char* title, const char* lines[], int lineCount) {
   clear();
   drawHeader(title);
+  display.setTextSize(1);
   int startY = 12;
   for (int i=0; i<lineCount && i<5; i++) {
     display.setCursor(2, startY + (i*10));

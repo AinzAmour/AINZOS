@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include "esp_err.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Start beacon spam with a specific SSID
  * @param ssid The SSID to broadcast (or "RICKROLL" for rickroll mode, "APLISTMODE" for AP list mode)
@@ -61,5 +65,9 @@ esp_err_t beacon_spam_broadcast_karma(const char *ssid);
  * @return true if running, false otherwise
  */
 bool beacon_spam_is_running(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BEACON_SPAM_H
