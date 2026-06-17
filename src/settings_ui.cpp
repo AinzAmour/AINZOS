@@ -36,8 +36,8 @@ bool SettingsUI::update(ButtonEvent btn) {
     } else if (btn == BTN_BACK || btn == BTN_BACK_LONG) {
       settings->save();
       currentPage = SetPage::Menu;
-      menuSelectedIndex = 9; // select Clock Saver in parent menu
-      menuTopIndex = 5;
+      menuSelectedIndex = 10; // select Clock Saver in parent menu
+      menuTopIndex = 6;
       redraw = true;
     }
     
@@ -132,13 +132,16 @@ void SettingsUI::handleSelection() {
     case 8: // BLE Filter
       settings->ble_filter = (settings->ble_filter + 1) % 4;
       break;
-    case 9: // Clock Saver settings sub-menu
+    case 9: // Temp Unit
+      settings->temp_unit = (settings->temp_unit + 1) % 2;
+      break;
+    case 10: // Clock Saver settings sub-menu
       currentPage = SetPage::ClockSaverMenu;
       menuSelectedIndex = 0;
       menuTopIndex = 0;
       drawClockSaverMenu();
       return;
-    case 10: // Factory Reset
+    case 11: // Factory Reset
       currentPage = SetPage::ConfirmReset;
       drawConfirm();
       return;
@@ -152,7 +155,7 @@ void SettingsUI::drawMenu() {
   
   auto d = display->getDriver();
   
-  char items[11][32];
+  char items[12][32];
   snprintf(items[0], sizeof(items[0]), "Contrast: %d", settings->contrast);
   
   const char* anim = "Normal";
@@ -188,8 +191,9 @@ void SettingsUI::drawMenu() {
   else if (settings->ble_filter == 3) flt = "Unknown";
   snprintf(items[8], sizeof(items[8]), "BLE Filter: %s", flt);
   
-  snprintf(items[9], sizeof(items[9]), "Clock Saver Settings");
-  snprintf(items[10], sizeof(items[10]), "Factory Reset");
+  snprintf(items[9], sizeof(items[9]), "Temp Unit: %s", settings->temp_unit == 0 ? "C" : "F");
+  snprintf(items[10], sizeof(items[10]), "Clock Saver Settings");
+  snprintf(items[11], sizeof(items[11]), "Factory Reset");
 
   for (int i = 0; i < 5; i++) {
     int itemIdx = menuTopIndex + i;

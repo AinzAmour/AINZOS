@@ -16,6 +16,7 @@ public:
   uint8_t scroll_speed;  // 0=Slow, 1=Med, 2=Fast
   uint16_t probe_hop;    // 50, 100, 200, 500 (ms)
   uint8_t ble_filter;    // 0=All, 1=Trackers, 2=UART, 3=Unknown
+  uint8_t temp_unit;     // 0=Celsius, 1=Fahrenheit
   
   ClockSaverSettings cs;
 

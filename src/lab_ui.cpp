@@ -14,6 +14,7 @@ LabUI::LabUI(DisplayWrapper* disp)
     textInput(nullptr), textInputActive(false) {
   selectedAP.valid = false;
   selectedAP.ssid[0] = '\0';
+  evilTwinUI = new EvilTwinUI(disp);
 }
 
 void LabUI::stopAllWiFiAttacks() {
@@ -142,6 +143,10 @@ bool LabUI::startSelectedWiFiAttack() {
       break;
     default:
       return false;
+    case 8: // Evil Twin
+      currentPage = LabPage::EvilTwin;
+      evilTwinUI->enter();
+      return false;
   }
 }
 
@@ -173,6 +178,7 @@ void LabUI::stopSelectedWiFiAttack() {
 void LabUI::enter() {
   if (ble_spam_is_running()) { ble_spam_stop(); spamRunning = false; }
   stopAllWiFiAttacks();
+  if (evilTwinUI) { /* evil twin stopped in stopAllWiFiAttacks */ }
   currentPage = LabPage::Menu;
   menuSel = 0; menuTop = 0;
   drawMenu();
@@ -218,6 +224,12 @@ bool LabUI::update(ButtonEvent btn) {
         targetConfirmExpiresMs = millis() + 1000;
         currentPage = LabPage::WiFiAttacks;
         wifiSel = 0; wifiTop = 0;
+        drawWiFiAttackMenu();
+      }
+      break;
+    case LabPage::EvilTwin:
+      if (!evilTwinUI->update(btn)) {
+        currentPage = LabPage::WiFiAttacks;
         drawWiFiAttackMenu();
       }
       break;

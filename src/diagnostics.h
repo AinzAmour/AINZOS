@@ -5,6 +5,7 @@
 #include "display.h"
 #include "buttons.h"
 #include "shared_pager.h"
+#include "sensors/thermistor.h"
 
 enum class DiagPage {
   Menu,
@@ -29,6 +30,7 @@ private:
   int menuTopIndex;
   
   Pager sysMonitorPager;
+  ThermistorSensor thermistor;
   
   static const int DIAG_MENU_COUNT = 5;
   const char* diagMenuItems[5] = {

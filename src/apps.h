@@ -7,13 +7,17 @@
 #include "wifi_utils.h"
 #include "ble_utils.h"
 #include "shared_pager.h"
+#include "ui/radar_ui.h"
+#include "ui/probe_rain_ui.h"
 
 enum class AppsPage {
   Menu,
   Stopwatch,
-  BleInspector,         // Replaces Counter
-  WiFiChannelOccupancy,  // Replaces Dice
-  DeviceIdentity,        // Replaces RandomNumber
+  WiFiRadar,
+  ProbeRain,
+  BleInspector,
+  WiFiChannelOccupancy,
+  DeviceIdentity,
   Uptime,
   SignalMeter,
   ClockSaver
@@ -35,9 +39,11 @@ private:
   int menuSelectedIndex;
   int menuTopIndex;
   
-  static const int APPS_MENU_COUNT = 7;
-  const char* appsMenuItems[7] = {
+  static const int APPS_MENU_COUNT = 9;
+  const char* appsMenuItems[9] = {
     "Stopwatch",
+    "WiFi Radar",
+    "Probe Rain",
     "BLE Packet Inspector",
     "WiFi Chan Occupancy",
     "Device Identity",
@@ -48,6 +54,8 @@ private:
 
   void drawMenu();
   void handleStopwatch(ButtonEvent btn);
+  void handleWiFiRadar(ButtonEvent btn);
+  void handleProbeRain(ButtonEvent btn);
   void handleBleInspector(ButtonEvent btn);
   void handleWiFiChannelOccupancy(ButtonEvent btn);
   void handleDeviceIdentity(ButtonEvent btn);
@@ -66,6 +74,10 @@ private:
   
   // Uptime state
   unsigned long lastUptimeUpdate;
+
+  // Radar & Rain UI
+  RadarUI* radarUI;
+  ProbeRainUI* probeRainUI;
 };
 
 #endif

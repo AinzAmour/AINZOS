@@ -17,6 +17,7 @@ void SettingsManager::loadDefaults() {
   scroll_speed = 1;    // Med
   probe_hop = 100;     // 100ms
   ble_filter = 0;      // All
+  temp_unit = 0;       // Celsius
   
   cs.enabled = true;
   cs.bootClockEnabled = true;
@@ -51,6 +52,7 @@ void SettingsManager::load() {
   scroll_speed = prefs.getUChar("scr_spd", 1);
   probe_hop = prefs.getUShort("prb_hop", 100);
   ble_filter = prefs.getUChar("ble_flt", 0);
+  temp_unit = prefs.getUChar("temp_unit", 0);
   
   cs.enabled = prefs.getBool("cs_en", true);
   cs.bootClockEnabled = prefs.getBool("cs_boot", true);
@@ -92,6 +94,7 @@ void SettingsManager::save() {
   prefs.putUChar("scr_spd", scroll_speed);
   prefs.putUShort("prb_hop", probe_hop);
   prefs.putUChar("ble_flt", ble_filter);
+  prefs.putUChar("temp_unit", temp_unit);
   
   prefs.putBool("cs_en", cs.enabled);
   prefs.putBool("cs_boot", cs.bootClockEnabled);

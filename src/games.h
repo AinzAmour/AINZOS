@@ -5,11 +5,17 @@
 #include "display.h"
 #include "buttons.h"
 #include "settings.h"
+#include "games/tetris.h"
+#include "games/breakout.h"
+#include "games/flappy.h"
 
 enum class GamesPage {
   Menu,
   Snake,
-  Pong
+  Pong,
+  Tetris,
+  Breakout,
+  Flappy
 };
 
 class GamesUI {
@@ -25,10 +31,13 @@ private:
   
   int menuSelectedIndex;
   
-  static const int GAMES_MENU_COUNT = 2;
-  const char* gamesMenuItems[2] = {
+  static const int GAMES_MENU_COUNT = 5;
+  const char* gamesMenuItems[5] = {
     "Snake",
-    "Pong"
+    "Pong",
+    "Tetris",
+    "Breakout",
+    "Flappy Bird"
   };
 
   void drawMenu();
@@ -55,6 +64,11 @@ private:
   float ballX, ballY;
   float ballVX, ballVY;
   unsigned long lastPongMove;
+
+  // New games (self-contained classes)
+  TetrisGame* tetrisGame;
+  BreakoutGame* breakoutGame;
+  FlappyGame* flappyGame;
 };
 
 #endif

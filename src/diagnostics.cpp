@@ -15,6 +15,7 @@ Diagnostics::Diagnostics(DisplayWrapper* disp) : display(disp) {
   menuSelectedIndex = 0;
   menuTopIndex = 0;
   lastRefreshTime = 0;
+  thermistor.begin();
 }
 
 void Diagnostics::enter() {
@@ -193,13 +194,13 @@ void Diagnostics::drawSysMonitor() {
   
   auto d = display->getDriver();
   
-  sysMonitorPager.totalItems = 10;
+  sysMonitorPager.totalItems = 12;
   sysMonitorPager.itemsPerPage = 5;
   
   uint8_t start = sysMonitorPager.pageStart();
   uint8_t end = sysMonitorPager.pageEnd();
   
-  char lines[10][32];
+  char lines[12][32];
   
   // Line 0: Uptime
   unsigned long secs = millis() / 1000;
@@ -220,27 +221,43 @@ void Diagnostics::drawSysMonitor() {
   // Line 5: CPU Speed
   snprintf(lines[5], sizeof(lines[5]), "CPU: %u MHz", ESP.getCpuFreqMHz());
   
-  // Line 6: Chip Temperature
+  // Line 6: Die Temperature (internal sensor)
   float temp = safeTemperatureRead();
   if (temp > -100.0f) {
-    snprintf(lines[6], sizeof(lines[6]), "Temp: %.1f C", temp);
+    snprintf(lines[6], sizeof(lines[6]), "Die Temp:  %.1fC", temp);
   } else {
-    snprintf(lines[6], sizeof(lines[6]), "Temp: Unsupported");
+    snprintf(lines[6], sizeof(lines[6]), "Die Temp:  N/A");
   }
   
-  // Line 7: WiFi MAC
+  // Line 7: Ambient Temperature (NTC) in Celsius
+  float ambientC = thermistor.readCelsius();
+  if (ambientC > -100.0f) {
+    snprintf(lines[7], sizeof(lines[7]), "Ambient:   %.1fC", ambientC);
+  } else {
+    snprintf(lines[7], sizeof(lines[7]), "Ambient:   N/C");
+  }
+  
+  // Line 8: Ambient Temperature (NTC) in Fahrenheit
+  if (ambientC > -100.0f) {
+    float ambientF = thermistor.readFahrenheit();
+    snprintf(lines[8], sizeof(lines[8]), "Ambient:   %.1fF", ambientF);
+  } else {
+    snprintf(lines[8], sizeof(lines[8]), "Ambient:   N/C");
+  }
+  
+  // Line 9: WiFi MAC
   uint8_t wifiMac[6];
   esp_read_mac(wifiMac, ESP_MAC_WIFI_STA);
-  snprintf(lines[7], sizeof(lines[7]), "WiFi:%02X:%02X:%02X:%02X:%02X:%02X", 
+  snprintf(lines[9], sizeof(lines[9]), "WiFi:%02X:%02X:%02X:%02X:%02X:%02X", 
            wifiMac[0], wifiMac[1], wifiMac[2], wifiMac[3], wifiMac[4], wifiMac[5]);
   
-  // Line 8: BLE MAC
+  // Line 10: BLE MAC
   uint8_t bleMac[6];
   esp_read_mac(bleMac, ESP_MAC_BT);
-  snprintf(lines[8], sizeof(lines[8]), "BLE :%02X:%02X:%02X:%02X:%02X:%02X", 
+  snprintf(lines[10], sizeof(lines[10]), "BLE :%02X:%02X:%02X:%02X:%02X:%02X", 
            bleMac[0], bleMac[1], bleMac[2], bleMac[3], bleMac[4], bleMac[5]);
   
-  // Line 9: Reset Reason
+  // Line 11: Reset Reason
   esp_reset_reason_t reason = esp_reset_reason();
   const char* rStr = "Unknown";
   switch(reason) {
@@ -255,7 +272,7 @@ void Diagnostics::drawSysMonitor() {
     case ESP_RST_BROWNOUT:  rStr = "Brownout"; break;
     default: break;
   }
-  snprintf(lines[9], sizeof(lines[9]), "Reset: %s", rStr);
+  snprintf(lines[11], sizeof(lines[11]), "Reset: %s", rStr);
   
   for (uint8_t i = start; i < end; i++) {
     uint8_t row = i - start;

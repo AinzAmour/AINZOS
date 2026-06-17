@@ -4,6 +4,7 @@
 #include "display.h"
 #include "buttons.h"
 #include "text_input_ui.h"
+#include "ui/evil_twin_ui.h"
 
 extern "C" {
 #include "ble_spam.h"
@@ -15,7 +16,7 @@ extern "C" {
 #include "wifi/gtk_abuse.h"
 }
 
-enum class LabPage { Menu, BLESpam, WiFiAttacks, WiFiScan };
+enum class LabPage { Menu, BLESpam, WiFiAttacks, WiFiScan, EvilTwin };
 
 class LabUI {
 public:
@@ -53,7 +54,7 @@ private:
 
   int wifiSel, wifiTop;
   bool wifiAttackRunning;
-  static const int WIFI_ATTACK_COUNT = 8;
+  static const int WIFI_ATTACK_COUNT = 9;
   const char* wifiAttackItems[WIFI_ATTACK_COUNT] = {
     "Select Target",
     "Beacon Spam",
@@ -62,7 +63,8 @@ private:
     "Channel Switch",
     "DHCP Starvation",
     "EAPOL Logoff",
-    "GTK Abuse"
+    "GTK Abuse",
+    "Evil Twin"
   };
 
   // Selected AP for WiFi attacks
@@ -100,6 +102,9 @@ private:
   void stopAllWiFiAttacks();
   bool startSelectedWiFiAttack();
   void stopSelectedWiFiAttack();
+
+  // Evil Twin
+  EvilTwinUI* evilTwinUI;
 };
 
 #endif

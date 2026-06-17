@@ -26,7 +26,7 @@ private:
   int menuSelectedIndex;
   int menuTopIndex;
   
-  static const int SET_MENU_COUNT = 11;
+  static const int SET_MENU_COUNT = 12;
   void drawMenu();
   void drawConfirm();
   void handleSelection();

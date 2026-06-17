@@ -22,7 +22,10 @@
 #define RF_GPIO_PIN_5 8
 #define RF_GPIO_PIN_6 9
 
-#define SK6812_PIN 11
+#define SK6812_PIN 255  // DISABLED — GPIO11 is VDD_SPI on ESP32-C3
+                          // Driving GPIO11 as output corrupts SPI flash
+static_assert(SK6812_PIN != 11,
+  "GPIO11 is VDD_SPI — never assign it as a GPIO output");
 #define IR_LED_PIN 7
 
 #endif

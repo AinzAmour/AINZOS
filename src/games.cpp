@@ -5,6 +5,9 @@ GamesUI::GamesUI(DisplayWrapper* disp, SettingsManager* sm) : display(disp), set
   menuSelectedIndex = 0;
   snakeGameOver = false;
   snakeScore = 0;
+  tetrisGame = new TetrisGame(disp);
+  breakoutGame = new BreakoutGame(disp);
+  flappyGame = new FlappyGame(disp);
 }
 
 void GamesUI::enter() {
@@ -33,6 +36,15 @@ bool GamesUI::update(ButtonEvent btn) {
       } else if (menuSelectedIndex == 1) {
         currentPage = GamesPage::Pong;
         initPong();
+      } else if (menuSelectedIndex == 2) {
+        currentPage = GamesPage::Tetris;
+        tetrisGame->init();
+      } else if (menuSelectedIndex == 3) {
+        currentPage = GamesPage::Breakout;
+        breakoutGame->init();
+      } else if (menuSelectedIndex == 4) {
+        currentPage = GamesPage::Flappy;
+        flappyGame->init();
       }
       return true;
     } else if (btn == BTN_BACK || btn == BTN_BACK_LONG) {
@@ -47,6 +59,21 @@ bool GamesUI::update(ButtonEvent btn) {
     handleSnake(btn);
   } else if (currentPage == GamesPage::Pong) {
     handlePong(btn);
+  } else if (currentPage == GamesPage::Tetris) {
+    if (!tetrisGame->update(btn)) {
+      currentPage = GamesPage::Menu;
+      drawMenu();
+    }
+  } else if (currentPage == GamesPage::Breakout) {
+    if (!breakoutGame->update(btn)) {
+      currentPage = GamesPage::Menu;
+      drawMenu();
+    }
+  } else if (currentPage == GamesPage::Flappy) {
+    if (!flappyGame->update(btn)) {
+      currentPage = GamesPage::Menu;
+      drawMenu();
+    }
   }
   
   return true;

@@ -17,6 +17,9 @@ AppsUI::AppsUI(DisplayWrapper* disp, WifiScanner* ws, BleScanner* bs)
   swElapsed = 0;
   selectedDeviceIdx = 255;
   lastUptimeUpdate = 0;
+
+  radarUI = new RadarUI(disp);
+  probeRainUI = new ProbeRainUI(disp);
 }
 
 void AppsUI::enter(AppsPage target) {
@@ -29,6 +32,10 @@ void AppsUI::enter(AppsPage target) {
   } else {
     if (currentPage == AppsPage::Stopwatch) {
       handleStopwatch(BTN_NONE);
+    } else if (currentPage == AppsPage::WiFiRadar) {
+      radarUI->enter();
+    } else if (currentPage == AppsPage::ProbeRain) {
+      probeRainUI->enter();
     } else if (currentPage == AppsPage::BleInspector) {
       selectedDeviceIdx = 255;
       inspectPager.reset();
@@ -65,21 +72,23 @@ bool AppsUI::update(ButtonEvent btn) {
     } else if (btn == BTN_SELECT) {
       switch (menuSelectedIndex) {
         case 0: currentPage = AppsPage::Stopwatch; handleStopwatch(BTN_NONE); break;
-        case 1: 
+        case 1: currentPage = AppsPage::WiFiRadar; radarUI->enter(); break;
+        case 2: currentPage = AppsPage::ProbeRain; probeRainUI->enter(); break;
+        case 3: 
           navStack.push(Page::AppsMenu);
           window.changePage(Page::BLEPacketInspector); 
           break;
-        case 2: 
+        case 4: 
           navStack.push(Page::AppsMenu);
           window.changePage(Page::WiFiChannelOccupancy); 
           break;
-        case 3: 
+        case 5: 
           navStack.push(Page::AppsMenu);
           window.changePage(Page::DeviceIdentity); 
           break;
-        case 4: currentPage = AppsPage::Uptime; handleUptime(BTN_NONE); break;
-        case 5: currentPage = AppsPage::SignalMeter; handleSignalMeter(BTN_NONE); break;
-        case 6: 
+        case 6: currentPage = AppsPage::Uptime; handleUptime(BTN_NONE); break;
+        case 7: currentPage = AppsPage::SignalMeter; handleSignalMeter(BTN_NONE); break;
+        case 8: 
           currentPage = AppsPage::ClockSaver; 
           startClockSaver(CS_ENTRY_MANUAL);
           handleClockSaver(BTN_NONE); 
@@ -96,6 +105,8 @@ bool AppsUI::update(ButtonEvent btn) {
   
   switch(currentPage) {
     case AppsPage::Stopwatch: handleStopwatch(btn); break;
+    case AppsPage::WiFiRadar: handleWiFiRadar(btn); break;
+    case AppsPage::ProbeRain: handleProbeRain(btn); break;
     case AppsPage::BleInspector: handleBleInspector(btn); break;
     case AppsPage::WiFiChannelOccupancy: handleWiFiChannelOccupancy(btn); break;
     case AppsPage::DeviceIdentity: handleDeviceIdentity(btn); break;
@@ -110,6 +121,20 @@ bool AppsUI::update(ButtonEvent btn) {
 
 void AppsUI::drawMenu() {
   display->drawMenu("Apps", appsMenuItems, APPS_MENU_COUNT, menuSelectedIndex, menuTopIndex);
+}
+
+void AppsUI::handleWiFiRadar(ButtonEvent btn) {
+  if (!radarUI->update(btn)) {
+    currentPage = AppsPage::Menu;
+    drawMenu();
+  }
+}
+
+void AppsUI::handleProbeRain(ButtonEvent btn) {
+  if (!probeRainUI->update(btn)) {
+    currentPage = AppsPage::Menu;
+    drawMenu();
+  }
 }
 
 void AppsUI::handleStopwatch(ButtonEvent btn) {
