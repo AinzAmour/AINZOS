@@ -17,7 +17,7 @@ extern "C" {
 #include "wifi/gtk_abuse.h"
 }
 
-enum class LabPage { Menu, BLESpam, WiFiAttacks, WiFiScan, EvilTwin, BadBLE };
+enum class LabPage { Menu, BLEMenu, BLESpam, WiFiAttacks, WiFiScan, EvilTwin, BadBLE };
 
 class LabUI {
 public:
@@ -33,17 +33,20 @@ private:
   static const int LAB_MENU_COUNT = 2;
   const char* labMenuItems[LAB_MENU_COUNT] = { "BLE", "WiFi" };
 
+  int bleMenuSel, bleMenuTop;
+  static const int BLE_MENU_COUNT = 2;
+  const char* bleMenuItems[BLE_MENU_COUNT] = { "BLE Spam", "BadBLE" };
+
   int bleSel, bleTop;
   bool spamRunning;
-  static const int BLE_SPAM_COUNT = 7;
+  static const int BLE_SPAM_COUNT = 6;
   const char* bleSpamItems[BLE_SPAM_COUNT] = {
     "Apple",
     "Microsoft",
     "Samsung",
     "Google",
     "Flipper Zero",
-    "Random",
-    "BadBLE"
+    "Random"
   };
   const ble_spam_type_t bleSpamTypes[BLE_SPAM_COUNT] = {
     BLE_SPAM_APPLE,
@@ -51,8 +54,7 @@ private:
     BLE_SPAM_SAMSUNG,
     BLE_SPAM_GOOGLE,
     BLE_SPAM_FLIPPERZERO,
-    BLE_SPAM_RANDOM,
-    BLE_SPAM_RANDOM  // placeholder — BadBLE handled separately
+    BLE_SPAM_RANDOM
   };
 
   int wifiSel, wifiTop;
@@ -94,9 +96,11 @@ private:
   bool textInputActive;
 
   void handleMenu(ButtonEvent btn);
+  void handleBLEMenu(ButtonEvent btn);
   void handleBLESpam(ButtonEvent btn);
   void handleWiFiAttacks(ButtonEvent btn);
   void drawMenu();
+  void drawBLEMenu();
   void drawBLESpamMenu();
   void drawSpamRunning();
   void drawWiFiAttackMenu();

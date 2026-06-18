@@ -8,6 +8,7 @@
 LabUI::LabUI(DisplayWrapper* disp)
   : display(disp), currentPage(LabPage::Menu),
     menuSel(0), menuTop(0),
+    bleMenuSel(0), bleMenuTop(0),
     bleSel(0), bleTop(0), spamRunning(false),
     wifiSel(0), wifiTop(0), wifiAttackRunning(false),
     scanCount(0), scanSel(0), scanTop(0), showTargetConfirm(false), targetConfirmExpiresMs(0),
@@ -195,6 +196,7 @@ bool LabUI::update(ButtonEvent btn) {
   }
   switch (currentPage) {
     case LabPage::Menu:       handleMenu(btn);       break;
+    case LabPage::BLEMenu:    handleBLEMenu(btn);    break;
     case LabPage::BLESpam:    handleBLESpam(btn);    break;
     case LabPage::WiFiAttacks: handleWiFiAttacks(btn); break;
     case LabPage::WiFiScan:
@@ -238,8 +240,8 @@ bool LabUI::update(ButtonEvent btn) {
       break;
     case LabPage::BadBLE:
       if (!badBleUI->update(btn)) {
-        currentPage = LabPage::BLESpam;
-        drawBLESpamMenu();
+        currentPage = LabPage::BLEMenu;
+        drawBLEMenu();
       }
       break;
   }
@@ -257,13 +259,40 @@ void LabUI::handleMenu(ButtonEvent btn) {
     drawMenu();
   } else if (btn == BTN_SELECT) {
     if (menuSel == 0) {
-      bleSel = 0; bleTop = 0;
-      currentPage = LabPage::BLESpam;
-      drawBLESpamMenu();
+      bleMenuSel = 0; bleMenuTop = 0;
+      currentPage = LabPage::BLEMenu;
+      drawBLEMenu();
     } else if (menuSel == 1) {
       wifiSel = 0; wifiTop = 0;
       currentPage = LabPage::WiFiAttacks;
       drawWiFiAttackMenu();
+    }
+  }
+}
+
+void LabUI::handleBLEMenu(ButtonEvent btn) {
+  if (btn == BTN_BACK) {
+    currentPage = LabPage::Menu;
+    drawMenu();
+    return;
+  }
+  if (btn == BTN_DOWN && bleMenuSel < BLE_MENU_COUNT - 1) {
+    bleMenuSel++;
+    if (bleMenuSel >= bleMenuTop + 4) bleMenuTop++;
+    drawBLEMenu();
+  } else if (btn == BTN_UP && bleMenuSel > 0) {
+    bleMenuSel--;
+    if (bleMenuSel < bleMenuTop) bleMenuTop--;
+    drawBLEMenu();
+  } else if (btn == BTN_SELECT) {
+    if (bleMenuSel == 0) {
+      bleSel = 0; bleTop = 0;
+      currentPage = LabPage::BLESpam;
+      drawBLESpamMenu();
+    } else if (bleMenuSel == 1) {
+      stopAllWiFiAttacks();
+      currentPage = LabPage::BadBLE;
+      badBleUI->enter();
     }
   }
 }
@@ -282,8 +311,8 @@ void LabUI::handleBLESpam(ButtonEvent btn) {
     return;
   }
   if (btn == BTN_BACK) {
-    currentPage = LabPage::Menu;
-    drawMenu();
+    currentPage = LabPage::BLEMenu;
+    drawBLEMenu();
     return;
   }
   if (btn == BTN_DOWN && bleSel < BLE_SPAM_COUNT - 1) {
@@ -295,18 +324,6 @@ void LabUI::handleBLESpam(ButtonEvent btn) {
     if (bleSel < bleTop) bleTop--;
     drawBLESpamMenu();
   } else if (btn == BTN_SELECT) {
-    // BadBLE — special handling (not a spam type)
-    if (bleSel == 6) {
-      // Stop BLE spam if running
-      if (ble_spam_is_running()) {
-        ble_spam_stop();
-        spamRunning = false;
-      }
-      stopAllWiFiAttacks();
-      currentPage = LabPage::BadBLE;
-      badBleUI->enter();
-      return;
-    }
     // Ensure WiFi attacks are stopped before starting BLE spam
     stopAllWiFiAttacks();
     Serial.printf("[LABUI] Starting BLE Spam type %d\n", (int)bleSpamTypes[bleSel]);
@@ -384,6 +401,10 @@ void LabUI::handleWiFiAttacks(ButtonEvent btn) {
 
 void LabUI::drawMenu() {
   display->drawMenu("Lab Tools", labMenuItems, LAB_MENU_COUNT, menuSel, menuTop);
+}
+
+void LabUI::drawBLEMenu() {
+  display->drawMenu("BLE Tools", bleMenuItems, BLE_MENU_COUNT, bleMenuSel, bleMenuTop);
 }
 
 void LabUI::drawBLESpamMenu() {
