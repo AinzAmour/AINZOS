@@ -1,6 +1,6 @@
 # AINZOS-C3 Mini Tool
 
-**Current Version**: `v2.2.1`
+**Current Version**: `v2.3.0`
 
 Firmware for the ESP32-C3 SuperMini featuring a 0.96" I2C OLED display, 4 tactile navigation buttons, a hardware-driven IR remote blaster, and a calibrated NTC ambient temperature sensor.
 
@@ -59,8 +59,8 @@ A physical 2x4 pin header footprint intended for general GPIO use or future RF m
 
 ## 💾 Resource Usage (Current Build)
 
-- **RAM**: `16.4%` (53,684 bytes used out of 327,680 bytes)
-- **Flash**: `35.2%` (1,085,106 bytes used out of 3,080,192 bytes, custom 2.9MB app partition enabled)
+- **RAM**: `16.6%` (54,300 bytes used out of 327,680 bytes)
+- **Flash**: `38.8%` (1,194,314 bytes used out of 3,080,192 bytes, custom 2.9MB app partition enabled)
 
 ---
 
@@ -93,7 +93,9 @@ A physical 2x4 pin header footprint intended for general GPIO use or future RF m
   - [x] Read-only BLE scan using lightweight `NimBLE`
   - [x] Sorting by RSSI, active scanning for friendly name resolution, suspect tag highlights
 - [x] **Lab Tools (Wireless & BLE Testing)**
+  - [x] **BLE Tools submenus**: Nested BLE Spam and BadBLE under a unified "BLE" tools menu.
   - [x] **BLE Spam**: Apple Continuity (AirPods/Beats Proximity, AppleTV AutoFill/Connecting/Audio Sync/Color Balance, Setup New iPhone, and Apple Vision Pro; custom iOS 17 lockup crash simulation), Microsoft SwiftPair (generates random device names), Samsung EasySetup (Buds & Watch), Google FastPair (genuine and custom popups like Flipper Zero, Free Robux, Rickroll, Tesla, FBI), Flipper Zero, and Random mixed mode.
+  - [x] **BadBLE (BLE HID Keyboard + Mouse Emulator)**: Simulates a Bluetooth keyboard and mouse to inject payloads (Alt+F4, Open PowerShell, ipconfig, systeminfo, custom typing, and mouse actions). Supports safe background task execution and user cancel abort.
   - [x] **Wi-Fi Attacks**:
     - [x] *Beacon Spam*: SSID broadcasting (with support for custom SSIDs/lists, Rickroll mode, AP List mode).
     - [x] *Deauth Attack*: Disconnecting stations from target APs or broadcasting deauth packets.
@@ -199,9 +201,29 @@ The **Lab Tools** menu provides deep testing capabilities. Below are details on 
 - Select one of the targeting options (Apple, Microsoft, Samsung, Google, Flipper Zero, or Random Mixed).
 - Once running, the firmware spams advertising packets. Press **SELECT** at any time on the status page to halt the attack.
 
+### 4. BadBLE (BLE HID Emulator)
+- Navigate to **Lab Tools** ➡️ **BLE** ➡️ **BadBLE**.
+- Select a payload from the list of 16 options (8 keyboard payloads, 8 mouse actions).
+- Once selected, the screen displays "Advertising as: 'BT Keyboard'".
+- Connect/pair the target device (computer or phone) to `"BT Keyboard"` via its Bluetooth settings.
+- Once connected, the screen shows "Host Connected!". Press **SELECT** to run the payload.
+- While the payload is transmitting ("Sending..."), you can press **BACK** at any time to abort the transmission safely (which terminates the task and releases all keys).
+- Once finished, the screen displays "Payload Sent!" and automatically returns to the menu after 2 seconds.
+
 ---
 
 ## Changelog
+
+### v2.3.0 (2026-06-18)
+- **BadBLE Feature Integration**: Added a BLE HID keyboard/mouse emulator under Lab Tools ➡️ BLE ➡️ BadBLE.
+  - Supports 8 keyboard payloads (Alt+F4, Open Run, Open PowerShell, IP Config, System Info, IP+Sys Info, Close All Windows, Custom Text) and 8 mouse actions (movements, clicks, scrolls).
+  - Reuses existing `TextInputUI` to allow typing arbitrary custom text strings.
+- **Watchdog & Stability Fixes**:
+  - Implemented asynchronous payload execution using a dedicated FreeRTOS task to prevent loop-thread blocking and Task Watchdog Timer (TWDT) resets.
+  - Implemented clean BLE client disconnection and callback clearing in `BleHID::stop()` to avoid Guru Meditation core panics during NimBLE de-initialization.
+  - Added an abort feature: pressing **BACK** during a payload run safely terminates the FreeRTOS task and releases all keys to avoid stuck keys on the host machine.
+  - Added an auto-dismiss timeout on the "Done!" screen returning to the menu after 2 seconds.
+- **Lab Tools Menu Reorganization**: Reorganized Lab Tools so that BLE features are nested under a new **BLE Tools** submenu (BLE Tools ➡️ BLE Spam / BadBLE) for cleaner interface navigation.
 
 ### v2.2.1 (2026-06-18)
 - **IR Transmitter Driver Fix:** Fixed potential crash by removing duplicate `irBegin()` (RMT driver re-initialization) from `IrUI::enter()`. The transmitter is now initialized once globally at boot time for maximum channel reliability.
