@@ -9,6 +9,7 @@
 #include "shared_pager.h"
 #include "ui/radar_ui.h"
 #include "ui/probe_rain_ui.h"
+#include "ui/image_gallery_ui.h"
 
 enum class AppsPage {
   Menu,
@@ -20,6 +21,7 @@ enum class AppsPage {
   DeviceIdentity,
   Uptime,
   SignalMeter,
+  ImageGallery,
   ClockSaver
 };
 
@@ -39,8 +41,8 @@ private:
   int menuSelectedIndex;
   int menuTopIndex;
   
-  static const int APPS_MENU_COUNT = 9;
-  const char* appsMenuItems[9] = {
+  static const int APPS_MENU_COUNT = 10;
+  const char* appsMenuItems[10] = {
     "Stopwatch",
     "WiFi Radar",
     "Probe Rain",
@@ -49,6 +51,7 @@ private:
     "Device Identity",
     "Uptime Monitor",
     "Signal Meter",
+    "Image Gallery",
     "Clock Saver"
   };
 
@@ -61,6 +64,7 @@ private:
   void handleDeviceIdentity(ButtonEvent btn);
   void handleUptime(ButtonEvent btn);
   void handleSignalMeter(ButtonEvent btn);
+  void handleImageGallery(ButtonEvent btn);
   void handleClockSaver(ButtonEvent btn);
   
   // Stopwatch states
@@ -78,6 +82,7 @@ private:
   // Radar & Rain UI
   RadarUI* radarUI;
   ProbeRainUI* probeRainUI;
+  ImageGalleryUI* imageGalleryUI;
 };
 
 #endif

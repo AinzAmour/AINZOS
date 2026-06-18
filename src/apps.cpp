@@ -20,6 +20,7 @@ AppsUI::AppsUI(DisplayWrapper* disp, WifiScanner* ws, BleScanner* bs)
 
   radarUI = new RadarUI(disp);
   probeRainUI = new ProbeRainUI(disp);
+  imageGalleryUI = new ImageGalleryUI(disp);
 }
 
 void AppsUI::enter(AppsPage target) {
@@ -48,6 +49,8 @@ void AppsUI::enter(AppsPage target) {
       handleUptime(BTN_NONE);
     } else if (currentPage == AppsPage::SignalMeter) {
       handleSignalMeter(BTN_NONE);
+    } else if (currentPage == AppsPage::ImageGallery) {
+      imageGalleryUI->enter();
     } else if (currentPage == AppsPage::ClockSaver) {
       handleClockSaver(BTN_NONE);
     }
@@ -88,7 +91,11 @@ bool AppsUI::update(ButtonEvent btn) {
           break;
         case 6: currentPage = AppsPage::Uptime; handleUptime(BTN_NONE); break;
         case 7: currentPage = AppsPage::SignalMeter; handleSignalMeter(BTN_NONE); break;
-        case 8: 
+        case 8:
+          currentPage = AppsPage::ImageGallery;
+          imageGalleryUI->enter();
+          break;
+        case 9: 
           currentPage = AppsPage::ClockSaver; 
           startClockSaver(CS_ENTRY_MANUAL);
           handleClockSaver(BTN_NONE); 
@@ -112,6 +119,7 @@ bool AppsUI::update(ButtonEvent btn) {
     case AppsPage::DeviceIdentity: handleDeviceIdentity(btn); break;
     case AppsPage::Uptime: handleUptime(btn); break;
     case AppsPage::SignalMeter: handleSignalMeter(btn); break;
+    case AppsPage::ImageGallery: handleImageGallery(btn); break;
     case AppsPage::ClockSaver: handleClockSaver(btn); break;
     default: break;
   }
@@ -497,4 +505,11 @@ void AppsUI::handleClockSaver(ButtonEvent btn) {
     return;
   }
   handleClockSaverApp(display, window.getSettings(), btn);
+}
+
+void AppsUI::handleImageGallery(ButtonEvent btn) {
+  if (!imageGalleryUI->update(btn)) {
+    currentPage = AppsPage::Menu;
+    drawMenu();
+  }
 }
