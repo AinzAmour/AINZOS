@@ -1,8 +1,8 @@
 /*
  * --- STEP 0 — CODEBASE AUDIT CONFIRMATION ---
  * Menu registration method found: In AppsUI (src/apps.h & src/apps.cpp), using appsMenuItems array and APPS_MENU_COUNT.
- * NVS namespace found: "hizmos" used with the ESP32 Preferences library.
- * u8g2 object name found: u8g2 is NOT used in HIZMOS-C3. Instead, Adafruit_SSD1306 display is wrapped in DisplayWrapper.
+ * NVS namespace found: "ainzos" used with the ESP32 Preferences library.
+ * u8g2 object name found: u8g2 is NOT used in AINZOS. Instead, Adafruit_SSD1306 display is wrapped in DisplayWrapper.
  * Button event type/enum found: ButtonEvent (enum, in include/app_types.h) containing BTN_UP, BTN_DOWN, BTN_SELECT, BTN_BACK, etc.
  * Wi-Fi credential source found: No Wi-Fi credential source existed in the original codebase; added static config in clock_saver_config.h.
  */

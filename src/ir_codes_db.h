@@ -61,7 +61,7 @@ static const char* const irKeyLabels[] PROGMEM = {
 
 // TV Brand keys mapping: 7 keys for each brand
 // Keys order: Power, Mute, OK, Vol+, Vol-, Up, Down
-#if HIZMOS_ENABLE_IR_BRAND_REMOTE
+#if AINZOS_ENABLE_IR_BRAND_REMOTE
 static const IRCodeEntry tvSamsungRemote[] PROGMEM = {
   {IR_PROTO_SAMSUNG, 32, 0, 0, 0xE0E040BF, "Power"},
   {IR_PROTO_SAMSUNG, 32, 0, 0, 0xE0E0F00F, "Mute"},
@@ -114,7 +114,7 @@ static const IRCodeEntry tvPhilipsRemote[] PROGMEM = {
 #endif
 
 // Other Devices
-#if HIZMOS_ENABLE_IR_OTHER_DEV
+#if AINZOS_ENABLE_IR_OTHER_DEV
 static const IRCodeEntry stbRemote[] PROGMEM = {
   {IR_PROTO_NEC, 32, 0, 0, 0x00FF02FD, "Power"},
   {IR_PROTO_NEC, 32, 0, 0, 0x00FF0AF5, "OK"},
@@ -135,7 +135,7 @@ static const IRCodeEntry soundbarRemote[] PROGMEM = {
   {IR_PROTO_NEC, 32, 0, 0, 0x00FFC03F, "Vol-"}
 };
 
-#if HIZMOS_ENABLE_IR_AC_CODES
+#if AINZOS_ENABLE_IR_AC_CODES
 static const IRCodeEntry acRemote[] PROGMEM = {
   {IR_PROTO_NEC, 32, 0, 0, 0x00FF52AD, "Power ON"},
   {IR_PROTO_NEC, 32, 0, 0, 0x00FF926D, "Power OFF"}
@@ -178,7 +178,7 @@ static const IRCodeEntry soundbarPowerBlastCodes[] PROGMEM = {
   {IR_PROTO_SAMSUNG, 32, 0, 0, 0xE0E040BF, "Sbar Sams"}
 };
 
-#if HIZMOS_ENABLE_IR_AC_CODES
+#if AINZOS_ENABLE_IR_AC_CODES
 static const IRCodeEntry acPowerBlastCodes[] PROGMEM = {
   {IR_PROTO_NEC, 32, 0, 0, 0x00FF52AD, "AC Toggle"},
   {IR_PROTO_NEC, 32, 0, 0, 0x00FF926D, "AC Off"}

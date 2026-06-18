@@ -36,7 +36,7 @@ void SettingsManager::loadDefaults() {
 }
 
 void SettingsManager::load() {
-  prefs.begin("hizmos", true); // read-only
+  prefs.begin("ainzos", true); // read-only
   if (!prefs.isKey("setup")) {
     prefs.end();
     loadDefaults();
@@ -83,7 +83,7 @@ void SettingsManager::load() {
 }
 
 void SettingsManager::save() {
-  prefs.begin("hizmos", false); // read-write
+  prefs.begin("ainzos", false); // read-write
   prefs.putBool("setup", true);
   prefs.putUChar("contrast", contrast);
   prefs.putUChar("anim", anim_speed);
@@ -119,7 +119,7 @@ void SettingsManager::save() {
 }
 
 void SettingsManager::factoryReset() {
-  prefs.begin("hizmos", false);
+  prefs.begin("ainzos", false);
   prefs.clear();
   prefs.end();
   loadDefaults();

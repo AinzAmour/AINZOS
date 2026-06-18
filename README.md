@@ -1,8 +1,8 @@
-# HIZMOS-C3 Mini Tool
+# AINZOS-C3 Mini Tool
 
 **Current Version**: `v2.2.1`
 
-Firmware for the ESP32-C3 SuperMini featuring a 0.96" I2C OLED display, 4 tactile navigation buttons, a hardware-driven IR remote blaster, and pins allocated for an NRF24L01 module.
+Firmware for the ESP32-C3 SuperMini featuring a 0.96" I2C OLED display, 4 tactile navigation buttons, a hardware-driven IR remote blaster, and a calibrated NTC ambient temperature sensor.
 
 ---
 
@@ -12,6 +12,7 @@ Firmware for the ESP32-C3 SuperMini featuring a 0.96" I2C OLED display, 4 tactil
 - **Display**: SSD1306 0.96" I2C OLED (128x64 pixels).
 - **Interface**: 4 Navigation Buttons (Active Low, utilizing internal pull-ups).
 - **Transmitter**: IR LED on GPIO 7.
+- **Ambient Sensor**: NTC 10kΩ Thermistor on GPIO 2.
 - **Power**: 3.3V or 5V (USB-C powered).
 
 ### Wiring Map
@@ -31,13 +32,17 @@ Firmware for the ESP32-C3 SuperMini featuring a 0.96" I2C OLED display, 4 tactil
 #### 3. IR Transmitter
 * **IR Transmit** ➡️ **GPIO 7** (Drives NPN transistor base)
 
-#### 4. 2x4 RF/GPIO Expansion Header
-A physical 2x4 pin header footprint intended for general GPIO use or future RF modules (like the NRF24L01 via an adapter).
+#### 4. NTC Temperature Sensor
+* **NTC Signal** ➡️ **GPIO 2**
+* **Circuitry**: 3V3 ── [5.8kΩ / 10kΩ Fixed Resistor] ──┬── GPIO 2 ── [10kΩ NTC Thermistor] ── GND
+
+#### 5. 2x4 RF/GPIO Expansion Header
+A physical 2x4 pin header footprint intended for general GPIO use or future RF modules.
 > [!WARNING]
 > **GPIO 8 and GPIO 9 are boot-sensitive (strapping pins)** on the ESP32-C3. They must not be pulled LOW or externally driven during boot, or the device will fail to start.
 
 * **Row 1** ➡️ **GND** / **3V3**
-* **Row 2** ➡️ **GPIO 2** / **GPIO 6**
+* **Row 2** ➡️ **GPIO 2 (NTC Dedicated)** / **GPIO 6**
 * **Row 3** ➡️ **GPIO 20** / **GPIO 21**
 * **Row 4** ➡️ **GPIO 8** / **GPIO 9**
 
@@ -136,7 +141,8 @@ pio device monitor
 ## 🔍 BLE & Temperature Implementation Details
 
 - **BLE Unknown Names**: Many BLE devices broadcast advertising packets without local names to conserve power. They appear as `Unknown`. Active scanning is enabled to request scan responses containing names, but if omitted by the device, it remains `Unknown`.
-- **ESP32-C3 Chip Temperature**: The System and Uptime monitors display internal silicon die temperature. It is **not** an ambient room temperature sensor and is subject to self-heating.
+- **ESP32-C3 Chip Temperature**: Displays the internal silicon die temperature. This is subject to self-heating under heavy CPU/WiFi loads.
+- **Ambient Room Temperature (NTC)**: Displays the actual ambient temperature using an NTC thermistor connected to GPIO 2. The reading uses ESP32 calibrated millivolts via `analogReadMilliVolts()` to bypass ADC non-linearity, and can be fine-tuned via constants in `thermistor.h` (`R_FIXED`, `NTC_NOMINAL`, `NTC_BETA`).
 
 ---
 

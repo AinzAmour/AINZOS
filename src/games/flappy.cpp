@@ -9,7 +9,7 @@ FlappyGame::FlappyGame(DisplayWrapper* disp) : display(disp) {
 
 void FlappyGame::loadHighScore() {
   Preferences prefs;
-  prefs.begin("hizmos", true);
+  prefs.begin("ainzos", true);
   highScore = prefs.getInt("flappy_hs", 0);
   prefs.end();
 }
@@ -18,7 +18,7 @@ void FlappyGame::saveHighScore() {
   if (score > highScore) {
     highScore = score;
     Preferences prefs;
-    prefs.begin("hizmos", false);
+    prefs.begin("ainzos", false);
     prefs.putInt("flappy_hs", highScore);
     prefs.end();
   }

@@ -11,7 +11,7 @@ BreakoutGame::BreakoutGame(DisplayWrapper* disp) : display(disp) {
 
 void BreakoutGame::loadHighScore() {
   Preferences prefs;
-  prefs.begin("hizmos", true);
+  prefs.begin("ainzos", true);
   highScore = prefs.getInt("breakout_hs", 0);
   prefs.end();
 }
@@ -20,7 +20,7 @@ void BreakoutGame::saveHighScore() {
   if (score > highScore) {
     highScore = score;
     Preferences prefs;
-    prefs.begin("hizmos", false);
+    prefs.begin("ainzos", false);
     prefs.putInt("breakout_hs", highScore);
     prefs.end();
   }

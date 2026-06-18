@@ -1,6 +1,6 @@
 # Hardware Regression Testing Checklist
 
-Follow this checklist to perform a complete manual regression verification of the HIZMOS-C3 firmware on physical hardware.
+Follow this checklist to perform a complete manual regression verification of the AINZOS-C3 firmware on physical hardware.
 
 ---
 
@@ -8,7 +8,7 @@ Follow this checklist to perform a complete manual regression verification of th
 - [ ] Connect the ESP32-C3 to power via USB-C.
 - [ ] Verify that the OLED display initializes immediately.
 - [ ] Verify that the splash screen loads, displaying:
-  * `HIZMOS-C3` in text size 2.
+  * `AINZOS-C3` in text size 2.
   * `v1.0.1` in text size 1.
 - [ ] Verify that the screen transitions to the Main Menu after ~2 seconds (or immediately if any button is pressed).
 

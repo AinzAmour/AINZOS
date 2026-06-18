@@ -125,10 +125,10 @@ void IrUI::enter() {
 int getActiveItemCount(IRPageState state, IRDeviceType device) {
   switch (state) {
     case IR_PAGE_MAIN: return 3;
-    case IR_PAGE_UNIVERSAL: return HIZMOS_ENABLE_IR_AC_CODES ? 7 : 6;
+    case IR_PAGE_UNIVERSAL: return AINZOS_ENABLE_IR_AC_CODES ? 7 : 6;
     case IR_PAGE_TV_BRANDS: return 5;
     case IR_PAGE_TV_KEYS: return 7;
-    case IR_PAGE_OTHER_DEVICES: return HIZMOS_ENABLE_IR_AC_CODES ? 4 : 3;
+    case IR_PAGE_OTHER_DEVICES: return AINZOS_ENABLE_IR_AC_CODES ? 4 : 3;
     case IR_PAGE_OTHER_KEYS:
       if (device == IR_DEV_STB) return 4;
       if (device == IR_DEV_PROJECTOR) return 3;
@@ -227,7 +227,7 @@ bool IrUI::update(ButtonEvent btn) {
         } else if (menuSelectedIndex == 5) {
           startUniversalBlast(soundbarPowerBlastCodes, 3, "Sbar Power Blast");
         } else if (menuSelectedIndex == 6) {
-#if HIZMOS_ENABLE_IR_AC_CODES
+#if AINZOS_ENABLE_IR_AC_CODES
           startUniversalBlast(acPowerBlastCodes, 2, "AC Power Blast");
 #endif
         }
@@ -356,7 +356,7 @@ void IrUI::drawActivePage() {
       display->drawMenu("IR Remote", irMainItems, 3, menuSelectedIndex, menuTopIndex);
       break;
     case IR_PAGE_UNIVERSAL:
-      display->drawMenu("Universal Blast", irUniversalItems, HIZMOS_ENABLE_IR_AC_CODES ? 7 : 6, menuSelectedIndex, menuTopIndex);
+      display->drawMenu("Universal Blast", irUniversalItems, AINZOS_ENABLE_IR_AC_CODES ? 7 : 6, menuSelectedIndex, menuTopIndex);
       break;
     case IR_PAGE_TV_BRANDS:
       display->drawMenu("TV Brand", irTvBrandItems, 5, menuSelectedIndex, menuTopIndex);
@@ -365,7 +365,7 @@ void IrUI::drawActivePage() {
       display->drawMenu("TV Remote", irTvKeyItems, 7, menuSelectedIndex, menuTopIndex);
       break;
     case IR_PAGE_OTHER_DEVICES:
-      display->drawMenu("Other Devices", irOtherDeviceItems, HIZMOS_ENABLE_IR_AC_CODES ? 4 : 3, menuSelectedIndex, menuTopIndex);
+      display->drawMenu("Other Devices", irOtherDeviceItems, AINZOS_ENABLE_IR_AC_CODES ? 4 : 3, menuSelectedIndex, menuTopIndex);
       break;
     case IR_PAGE_OTHER_KEYS:
       if (selectedDevice == IR_DEV_STB) {

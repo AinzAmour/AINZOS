@@ -17,7 +17,7 @@ bool TetrisGame::getPieceCell(int type, int rot, int cx, int cy) {
 
 void TetrisGame::loadHighScore() {
   Preferences prefs;
-  prefs.begin("hizmos", true);
+  prefs.begin("ainzos", true);
   highScore = prefs.getInt("tetris_hs", 0);
   prefs.end();
 }
@@ -26,7 +26,7 @@ void TetrisGame::saveHighScore() {
   if (score > highScore) {
     highScore = score;
     Preferences prefs;
-    prefs.begin("hizmos", false);
+    prefs.begin("ainzos", false);
     prefs.putInt("tetris_hs", highScore);
     prefs.end();
   }

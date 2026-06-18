@@ -122,7 +122,7 @@ bool irSendUniversalSignal(const universal_ir_signal_t* sig) {
 }
 
 bool irSendBrandKey(uint8_t brand, IRKey key) {
-#if HIZMOS_ENABLE_IR_BRAND_REMOTE
+#if AINZOS_ENABLE_IR_BRAND_REMOTE
   const IRCodeEntry* list = nullptr;
   switch (brand) {
     case 0: list = tvSamsungRemote; break;
@@ -143,7 +143,7 @@ bool irSendBrandKey(uint8_t brand, IRKey key) {
 }
 
 bool irSendOtherDeviceKey(IRDeviceType device, IRKey key) {
-#if HIZMOS_ENABLE_IR_OTHER_DEV
+#if AINZOS_ENABLE_IR_OTHER_DEV
   const IRCodeEntry* list = nullptr;
   uint8_t max_keys = 0;
   switch (device) {
@@ -160,7 +160,7 @@ bool irSendOtherDeviceKey(IRDeviceType device, IRKey key) {
       max_keys = 4;
       break;
     case IR_DEV_AC:
-#if HIZMOS_ENABLE_IR_AC_CODES
+#if AINZOS_ENABLE_IR_AC_CODES
       list = acRemote;
       max_keys = 2;
 #endif

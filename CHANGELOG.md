@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the HIZMOS-C3 project will be documented in this file.
+All notable changes to the AINZOS-C3 project will be documented in this file.
 
 ---
 
