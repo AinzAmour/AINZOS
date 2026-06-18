@@ -5,6 +5,7 @@
 #include "buttons.h"
 #include "text_input_ui.h"
 #include "ui/evil_twin_ui.h"
+#include "ui/bad_ble_ui.h"
 
 extern "C" {
 #include "ble_spam.h"
@@ -16,7 +17,7 @@ extern "C" {
 #include "wifi/gtk_abuse.h"
 }
 
-enum class LabPage { Menu, BLESpam, WiFiAttacks, WiFiScan, EvilTwin };
+enum class LabPage { Menu, BLESpam, WiFiAttacks, WiFiScan, EvilTwin, BadBLE };
 
 class LabUI {
 public:
@@ -34,14 +35,15 @@ private:
 
   int bleSel, bleTop;
   bool spamRunning;
-  static const int BLE_SPAM_COUNT = 6;
+  static const int BLE_SPAM_COUNT = 7;
   const char* bleSpamItems[BLE_SPAM_COUNT] = {
     "Apple",
     "Microsoft",
     "Samsung",
     "Google",
     "Flipper Zero",
-    "Random"
+    "Random",
+    "BadBLE"
   };
   const ble_spam_type_t bleSpamTypes[BLE_SPAM_COUNT] = {
     BLE_SPAM_APPLE,
@@ -49,7 +51,8 @@ private:
     BLE_SPAM_SAMSUNG,
     BLE_SPAM_GOOGLE,
     BLE_SPAM_FLIPPERZERO,
-    BLE_SPAM_RANDOM
+    BLE_SPAM_RANDOM,
+    BLE_SPAM_RANDOM  // placeholder — BadBLE handled separately
   };
 
   int wifiSel, wifiTop;
@@ -105,6 +108,9 @@ private:
 
   // Evil Twin
   EvilTwinUI* evilTwinUI;
+
+  // BadBLE
+  BadBleUI* badBleUI;
 };
 
 #endif

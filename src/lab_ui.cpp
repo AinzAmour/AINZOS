@@ -15,6 +15,7 @@ LabUI::LabUI(DisplayWrapper* disp)
   selectedAP.valid = false;
   selectedAP.ssid[0] = '\0';
   evilTwinUI = new EvilTwinUI(disp);
+  badBleUI = new BadBleUI(disp);
 }
 
 void LabUI::stopAllWiFiAttacks() {
@@ -178,6 +179,7 @@ void LabUI::stopSelectedWiFiAttack() {
 void LabUI::enter() {
   if (ble_spam_is_running()) { ble_spam_stop(); spamRunning = false; }
   stopAllWiFiAttacks();
+  if (badBleUI) { badBleUI->stopHID(); }
   if (evilTwinUI) { /* evil twin stopped in stopAllWiFiAttacks */ }
   currentPage = LabPage::Menu;
   menuSel = 0; menuTop = 0;
@@ -188,6 +190,7 @@ bool LabUI::update(ButtonEvent btn) {
   if (currentPage == LabPage::Menu && btn == BTN_BACK) {
     if (ble_spam_is_running()) { ble_spam_stop(); spamRunning = false; }
     stopAllWiFiAttacks();
+    if (badBleUI) { badBleUI->stopHID(); }
     return false;
   }
   switch (currentPage) {
@@ -231,6 +234,12 @@ bool LabUI::update(ButtonEvent btn) {
       if (!evilTwinUI->update(btn)) {
         currentPage = LabPage::WiFiAttacks;
         drawWiFiAttackMenu();
+      }
+      break;
+    case LabPage::BadBLE:
+      if (!badBleUI->update(btn)) {
+        currentPage = LabPage::BLESpam;
+        drawBLESpamMenu();
       }
       break;
   }
@@ -286,6 +295,18 @@ void LabUI::handleBLESpam(ButtonEvent btn) {
     if (bleSel < bleTop) bleTop--;
     drawBLESpamMenu();
   } else if (btn == BTN_SELECT) {
+    // BadBLE — special handling (not a spam type)
+    if (bleSel == 6) {
+      // Stop BLE spam if running
+      if (ble_spam_is_running()) {
+        ble_spam_stop();
+        spamRunning = false;
+      }
+      stopAllWiFiAttacks();
+      currentPage = LabPage::BadBLE;
+      badBleUI->enter();
+      return;
+    }
     // Ensure WiFi attacks are stopped before starting BLE spam
     stopAllWiFiAttacks();
     Serial.printf("[LABUI] Starting BLE Spam type %d\n", (int)bleSpamTypes[bleSel]);
