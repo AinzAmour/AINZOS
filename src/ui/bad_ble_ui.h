@@ -48,6 +48,12 @@ private:
   // Payload execution
   void executePayload(int idx);
   void executeMouseAction(int mouseIdx);
+
+  // FreeRTOS task for async non-blocking payload execution (prevents watchdog resets)
+  bool payloadRunning;
+  TaskHandle_t payloadTaskHandle;
+  static void payloadTaskFunc(void* pvParameters);
+  void runPayload();
 };
 
 #endif // BAD_BLE_UI_H

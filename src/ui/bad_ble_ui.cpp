@@ -11,7 +11,8 @@ BadBleUI::BadBleUI(DisplayWrapper* disp)
   : display(disp), currentPage(BadBlePage::ModeMenu),
     modeSel(0), modeTop(0),
     selectedPayload(-1), payloadExecuted(false), doneTimerMs(0),
-    textInput(nullptr), customTextReady(false) {
+    textInput(nullptr), customTextReady(false),
+    payloadRunning(false), payloadTaskHandle(nullptr) {
   customTextBuf[0] = '\0';
 }
 
@@ -42,6 +43,14 @@ void BadBleUI::enter() {
 // ============================================================================
 
 void BadBleUI::stopHID() {
+  if (payloadRunning && payloadTaskHandle != nullptr) {
+    vTaskDelete(payloadTaskHandle);
+    payloadTaskHandle = nullptr;
+    payloadRunning = false;
+    if (hid.isConnected()) {
+      hid.releaseAll();
+    }
+  }
   if (hid.isRunning()) {
     hid.stop();
   }
@@ -117,7 +126,17 @@ void BadBleUI::drawConnectRun() {
   d->setTextSize(1);
   d->setTextColor(SSD1306_WHITE);
 
-  if (payloadExecuted) {
+  if (payloadRunning) {
+    // Sending screen
+    d->setCursor(2, 14);
+    d->print(F("Sending..."));
+    
+    d->setCursor(2, 28);
+    d->print(getPayloadName(selectedPayload));
+    
+    d->setCursor(2, 54);
+    d->print(F("BACK to abort"));
+  } else if (payloadExecuted) {
     // Done screen
     d->setCursor(2, 14);
     d->print(F("Payload Sent!"));
@@ -247,6 +266,21 @@ bool BadBleUI::update(ButtonEvent btn) {
 
     // ---- Connect / Run ----
     case BadBlePage::ConnectRun: {
+      if (payloadRunning) {
+        // While sending, allow BACK to abort
+        if (btn == BTN_BACK) {
+          stopHID();
+          currentPage = BadBlePage::ModeMenu;
+          drawModeMenu();
+          return true;
+        }
+        // Ignore other buttons and update screen
+        if (btn == BTN_NONE) {
+          drawConnectRun();
+        }
+        break;
+      }
+
       if (btn == BTN_BACK) {
         stopHID();
         currentPage = BadBlePage::ModeMenu;
@@ -256,30 +290,21 @@ bool BadBleUI::update(ButtonEvent btn) {
 
       if (hid.isConnected() && !payloadExecuted) {
         if (btn == BTN_SELECT) {
-          // Show "Sending..." briefly
-          display->clear();
-          display->drawHeader("BadBLE");
-          Adafruit_SSD1306* d = display->getDriver();
-          d->setTextSize(1);
-          d->setTextColor(SSD1306_WHITE);
-          d->setCursor(2, 28);
-          d->print(F("Sending..."));
-          d->display();
-
-          executePayload(selectedPayload);
-
-          payloadExecuted = true;
-          doneTimerMs = millis() + 2000;
-          drawConnectRun();
+          payloadRunning = true;
+          payloadExecuted = false;
+          xTaskCreate(payloadTaskFunc, "badble_pay", 4096, this, 5, &payloadTaskHandle);
+          drawConnectRun(); // Refresh immediately to show "Sending..."
         }
       }
 
       // Auto-dismiss done screen after 2 seconds (on any button or timeout)
-      if (payloadExecuted && btn != BTN_NONE) {
-        stopHID();
-        currentPage = BadBlePage::ModeMenu;
-        drawModeMenu();
-        return true;
+      if (payloadExecuted) {
+        if (btn != BTN_NONE || millis() > doneTimerMs) {
+          stopHID();
+          currentPage = BadBlePage::ModeMenu;
+          drawModeMenu();
+          return true;
+        }
       }
 
       // Refresh display on each update to show connection status changes
@@ -317,4 +342,22 @@ bool BadBleUI::update(ButtonEvent btn) {
   }
 
   return true;
+}
+
+// ============================================================================
+// FreeRTOS Task Helpers
+// ============================================================================
+
+void BadBleUI::payloadTaskFunc(void* pvParameters) {
+  BadBleUI* ui = (BadBleUI*)pvParameters;
+  ui->runPayload();
+  ui->payloadTaskHandle = nullptr;
+  vTaskDelete(NULL);
+}
+
+void BadBleUI::runPayload() {
+  executePayload(selectedPayload);
+  payloadRunning = false;
+  payloadExecuted = true;
+  doneTimerMs = millis() + 2000;
 }

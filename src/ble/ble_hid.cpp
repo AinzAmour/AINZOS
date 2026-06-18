@@ -1,5 +1,6 @@
 #include "ble_hid.h"
 #include "ble_spam.h"
+#include <vector>
 
 // ============================================================================
 // HID Report Descriptors — Composite Keyboard + Mouse
@@ -238,6 +239,20 @@ void BleHID::stop() {
     if (NimBLEDevice::getAdvertising()->isAdvertising()) {
       NimBLEDevice::getAdvertising()->stop();
     }
+
+    if (pServer) {
+      // Cleanly disconnect any active peer clients
+      std::vector<uint16_t> peers = pServer->getPeerDevices();
+      for (uint16_t conn : peers) {
+        pServer->disconnect(conn);
+      }
+      // Detach callbacks so we don't handle events while deinitializing
+      pServer->setCallbacks(nullptr);
+    }
+
+    // Give a short delay for disconnect events to propagate in the stack
+    delay(200);
+
     NimBLEDevice::deinit(true);
   }
 
