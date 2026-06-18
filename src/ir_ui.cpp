@@ -119,7 +119,6 @@ void IrUI::enter() {
   menuTopIndex = 0;
   statusText = nullptr;
   stackPtr = 0;
-  irBegin(); // Initialize IR sending pin
   drawActivePage();
 }
 

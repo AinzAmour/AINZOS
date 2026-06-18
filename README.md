@@ -1,6 +1,6 @@
 # HIZMOS-C3 Mini Tool
 
-**Current Version**: `v2.1.0`
+**Current Version**: `v2.2.1`
 
 Firmware for the ESP32-C3 SuperMini featuring a 0.96" I2C OLED display, 4 tactile navigation buttons, a hardware-driven IR remote blaster, and pins allocated for an NRF24L01 module.
 
@@ -195,8 +195,17 @@ The **Lab Tools** menu provides deep testing capabilities. Below are details on 
 
 ---
 
-## Changelog (2026-06-14 & 2026-06-15 updates)
+## Changelog
 
+### v2.2.1 (2026-06-18)
+- **IR Transmitter Driver Fix:** Fixed potential crash by removing duplicate `irBegin()` (RMT driver re-initialization) from `IrUI::enter()`. The transmitter is now initialized once globally at boot time for maximum channel reliability.
+- **NTC Thermistor Temperature Calibration:**
+  - Upgraded thermistor readings to use calibrated `analogReadMilliVolts()` utilizing internal ESP32 factory calibration.
+  - Refactored `thermistor.h` to introduce customizable macro constants (`NTC_NOMINAL`, `NTC_BETA`, `R_FIXED`).
+  - Added software calibration for the NTC divider (using calibrated fixed resistor value `R_FIXED 5827.0f`) to yield precise 28.0°C ambient room temperatures.
+  - Added live `NTC mV` (millivolts) readout to the **Diagnostics → System Monitor** screen to assist with future hardware analysis.
+
+### v2.1.0 (2026-06-14 & 2026-06-15 updates)
 - **4-Button Refactor:** Refactored the core input engine to use a 4-button configuration (UP, DOWN, SELECT, BACK), freeing up GPIO 2 and 6.
 - **Expansion Header Conversion:** Converted the dedicated NRF24 footprint into a generic 2x4 RF/GPIO expansion header (GND, 3V3, GPIO 2, 6, 20, 21, 8, 9). Removed GPIO 11 references as it is not exposed on the edge pads.
 - **Long-Press Pager Pagination:** Configured pagers across all features (Diagnostics, BLE Scanner, Wi-Fi Scanner, Utility Apps) to use long presses on UP (`BTN_UP_LONG`) and DOWN (`BTN_DOWN_LONG`) for page-level scrolling.

@@ -4,6 +4,20 @@ All notable changes to the HIZMOS-C3 project will be documented in this file.
 
 ---
 
+## [v2.2.1] - 2026-06-18 (IR Stability & NTC Calibration)
+
+### Fixed
+- **IR Transmitter Stability**: Removed duplicate `irBegin()` call from `IrUI::enter()` to prevent RMT peripheral channel re-initialization crashes.
+
+### Added
+- **NTC Thermistor Temperature Calibration**:
+  - Implemented calibrated temperature readings via `analogReadMilliVolts()`.
+  - Created customizable calibration macros (`NTC_NOMINAL`, `NTC_BETA`, `R_FIXED`) in `thermistor.h`.
+  - Soft-calibrated the voltage divider with `R_FIXED 5827.0f` to output accurate 28.0°C ambient room temperature.
+  - Added real-time `NTC mV` (millivolts) readout on the Diagnostics System Monitor screen.
+
+---
+
 ## [v2.1.0] - 2026-06-14 (Lab Tools & BLE Spam Release)
 
 ### Added

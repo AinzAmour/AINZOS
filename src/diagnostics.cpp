@@ -194,13 +194,13 @@ void Diagnostics::drawSysMonitor() {
   
   auto d = display->getDriver();
   
-  sysMonitorPager.totalItems = 12;
+  sysMonitorPager.totalItems = 13;
   sysMonitorPager.itemsPerPage = 5;
   
   uint8_t start = sysMonitorPager.pageStart();
   uint8_t end = sysMonitorPager.pageEnd();
   
-  char lines[12][32];
+  char lines[13][32];
   
   // Line 0: Uptime
   unsigned long secs = millis() / 1000;
@@ -245,19 +245,22 @@ void Diagnostics::drawSysMonitor() {
     snprintf(lines[8], sizeof(lines[8]), "Ambient:   N/C");
   }
   
-  // Line 9: WiFi MAC
+  // Line 9: NTC Millivolts average
+  snprintf(lines[9], sizeof(lines[9]), "NTC mV:    %.1f mV", thermistor.getLastRawADC());
+  
+  // Line 10: WiFi MAC
   uint8_t wifiMac[6];
   esp_read_mac(wifiMac, ESP_MAC_WIFI_STA);
-  snprintf(lines[9], sizeof(lines[9]), "WiFi:%02X:%02X:%02X:%02X:%02X:%02X", 
+  snprintf(lines[10], sizeof(lines[10]), "WiFi:%02X:%02X:%02X:%02X:%02X:%02X", 
            wifiMac[0], wifiMac[1], wifiMac[2], wifiMac[3], wifiMac[4], wifiMac[5]);
   
-  // Line 10: BLE MAC
+  // Line 11: BLE MAC
   uint8_t bleMac[6];
   esp_read_mac(bleMac, ESP_MAC_BT);
-  snprintf(lines[10], sizeof(lines[10]), "BLE :%02X:%02X:%02X:%02X:%02X:%02X", 
+  snprintf(lines[11], sizeof(lines[11]), "BLE :%02X:%02X:%02X:%02X:%02X:%02X", 
            bleMac[0], bleMac[1], bleMac[2], bleMac[3], bleMac[4], bleMac[5]);
   
-  // Line 11: Reset Reason
+  // Line 12: Reset Reason
   esp_reset_reason_t reason = esp_reset_reason();
   const char* rStr = "Unknown";
   switch(reason) {
@@ -272,7 +275,7 @@ void Diagnostics::drawSysMonitor() {
     case ESP_RST_BROWNOUT:  rStr = "Brownout"; break;
     default: break;
   }
-  snprintf(lines[11], sizeof(lines[11]), "Reset: %s", rStr);
+  snprintf(lines[12], sizeof(lines[12]), "Reset: %s", rStr);
   
   for (uint8_t i = start; i < end; i++) {
     uint8_t row = i - start;
